@@ -17,7 +17,9 @@ function App() {
   const [game, setGame] = useState<Logic.GameState>()
   const [yourPlayerId, setYourPlayerId] = useState<PlayerId | undefined>()
   const [showUi, setShowUi] = useState(false)
+
   const RollDiceView = useRollDiceView()
+  const [rollDone, setRollDone] = useState(false)
 
   useEffect(() => {
     Dusk.initClient({
@@ -47,7 +49,7 @@ function App() {
         <div className="absolute w-full h-full">
           <div className="absolute w-full bottom-0 p-4 flex justify-end bg-gradient-to-b from-transparent to-black/50">
             <button
-              className="pointer-events-auto"
+              className={`pointer-events-auto ${!rollDone && 'animate-bounce'}`}
               onClick={() => {
                 clickSound.play()
                 RollDiceView.show()
@@ -69,6 +71,9 @@ function App() {
       <RollDiceView
         onHide={() => {
           setShowUi(true)
+        }}
+        onRollDone={() => {
+          setRollDone(true)
         }}
       />
     </>

@@ -4,11 +4,12 @@ import { useDie } from './Die.tsx'
 
 type RollDiceViewProps = {
   onHide: () => void
+  onRollDone: () => void
 }
 
 const generateRollDiceView = () => {
-  function RollDiceView({ onHide }: RollDiceViewProps) {
-    const [rollDiceViewHidden, hideRollDiceView] = useState(false)
+  function RollDiceView({ onHide, onRollDone }: RollDiceViewProps) {
+    const [rollDiceViewHidden, hideRollDiceView] = useState(true)
     const [rollDone, setRollDone] = useState(false)
     const Die1 = useDie()
     const Die2 = useDie()
@@ -21,6 +22,13 @@ const generateRollDiceView = () => {
       }
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [rollDiceViewHidden])
+
+    useEffect(() => {
+      if (rollDone) {
+        onRollDone()
+      }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [rollDone])
 
     return (
       <div
