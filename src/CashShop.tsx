@@ -89,8 +89,8 @@ function CashShopItemCard({ priceIndex, item: { face, bought }, price }: CashSho
       </div>
 
       <div className="w-full flex flex-col gap-2">
-        <div className="w-full h-full flex gap-1 justify-center items-center">
-          <Currency type="meso" amount={price} textScale={1.1} />
+        <div className="w-full h-full">
+          <Currency type="meso" amount={price} textScale={1.8} />
         </div>
 
         <div className="h-full">
