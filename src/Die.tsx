@@ -13,7 +13,8 @@ type DieProps = {
 }
 
 export default function Die({ faces: [face1, face2, face3, face4, face5, face6] }: DieProps) {
-  const dieSizePx = 200
+  const dieSizePx = 150
+  const textScale = 4.5
   const radiusPx = dieSizePx / 2
 
   const [rollStarted, setRollStarted] = useState(false)
@@ -61,7 +62,7 @@ export default function Die({ faces: [face1, face2, face3, face4, face5, face6] 
           }}
         >
           <div className="h-full aspect-square bg-gradient-to-br from-red-500 to-red-700 rounded-3xl p-3 border border-black">
-            <DieFace {...face1} textScale={6} />
+            <DieFace {...face1} textScale={textScale} />
           </div>
         </div>
 
@@ -72,7 +73,7 @@ export default function Die({ faces: [face1, face2, face3, face4, face5, face6] 
           }}
         >
           <div className="h-full aspect-square bg-gradient-to-br from-red-500 to-red-700 rounded-3xl p-3 border border-black">
-            <DieFace {...face2} textScale={6} />
+            <DieFace {...face2} textScale={textScale} />
           </div>
         </div>
 
@@ -83,7 +84,7 @@ export default function Die({ faces: [face1, face2, face3, face4, face5, face6] 
           }}
         >
           <div className="h-full aspect-square bg-gradient-to-br from-red-500 to-red-700 rounded-3xl p-3 border border-black">
-            <DieFace {...face3} textScale={6} />
+            <DieFace {...face3} textScale={textScale} />
           </div>
         </div>
 
@@ -94,7 +95,7 @@ export default function Die({ faces: [face1, face2, face3, face4, face5, face6] 
           }}
         >
           <div className="h-full aspect-square bg-gradient-to-br from-red-500 to-red-700 rounded-3xl p-3 border border-black">
-            <DieFace {...face4} textScale={6} />
+            <DieFace {...face4} textScale={textScale} />
           </div>
         </div>
 
@@ -105,7 +106,7 @@ export default function Die({ faces: [face1, face2, face3, face4, face5, face6] 
           }}
         >
           <div className="h-full aspect-square bg-gradient-to-br from-red-500 to-red-700 rounded-3xl p-3 border border-black">
-            <DieFace {...face5} textScale={6} />
+            <DieFace {...face5} textScale={textScale} />
           </div>
         </div>
 
@@ -116,7 +117,7 @@ export default function Die({ faces: [face1, face2, face3, face4, face5, face6] 
           }}
         >
           <div className="h-full aspect-square bg-gradient-to-br from-red-500 to-red-700 rounded-3xl p-3 border border-black">
-            <DieFace {...face6} textScale={6} />
+            <DieFace {...face6} textScale={textScale} />
           </div>
         </div>
       </div>

@@ -90,9 +90,19 @@ function App() {
       {playerState.viewing === 'worldMap' && <img src={victoriaIslandImage} className="max-w-none h-screen" />}
       {playerState.viewing === 'cashShop' && <CashShop cashShop={cashShop} />}
 
-      <div className="fixed z-50 w-full h-full flex justify-center items-center">
+      <div className="fixed z-50 w-full h-full flex flex-col gap-20 justify-center items-center">
         <div className="absolute w-full h-full bg-black opacity-50" />
 
+        <Die
+          faces={[
+            { gain: ['meso', 6] },
+            { gain: ['wisdom', 1] },
+            { gain: ['wisdom', 2] },
+            { gain: ['power', 1] },
+            { gain: ['power', 2] },
+            { gain: ['level', 3] },
+          ]}
+        />
         <Die
           faces={[
             { gain: ['meso', 6] },
