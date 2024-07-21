@@ -1,0 +1,16 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  image-rendering: pixelated;
+}
+
+@font-face {
+  font-family: Digitalt;
+  src: url(./assets/fonts/Digitalt.otf);
+}
+
+.toaster * {
+  pointer-events: none;
+}
