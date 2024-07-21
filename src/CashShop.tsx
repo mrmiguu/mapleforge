@@ -1,7 +1,75 @@
+import { useMemo, useState } from 'react'
+
 import { buySound, clickSound } from './audio.ts'
 import Currency from './Currency.tsx'
 import DieFace from './DieFace.tsx'
 import * as Logic from './logic.ts'
+
+function ConfirmBuyModal() {
+  const [dieFace, setDieFace] = useState<Logic.DieFace>()
+  const [hidden, hide] = useState(true)
+
+  const [modalInstanceId, setModalInstanceId] = useState(Math.random())
+  const {
+    promise: confirmPromise,
+    resolve: confirm,
+    reject: cancel,
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  } = useMemo(() => Promise.withResolvers<void>(), [modalInstanceId])
+
+  ConfirmBuyModal.waitForConfirmation = async (face: Logic.DieFace) => {
+    try {
+      setDieFace(face)
+      hide(false)
+      await confirmPromise
+    } finally {
+      hide(true)
+      setModalInstanceId(Math.random())
+    }
+  }
+
+  return (
+    <div
+      className={`fixed z-50 left-0 top-0 w-full h-full p-8 flex justify-center items-center transition-all ${
+        hidden && 'opacity-0 pointer-events-none'
+      }`}
+    >
+      <div className="absolute w-full h-full bg-black opacity-50" />
+
+      <div className="relative p-3 bg-gray-300 flex flex-col gap-3 rounded outline outline-1 outline-black border text-white">
+        <div className="p-3 bg-blue-400 rounded outline outline-1 border-black border flex justify-center items-center gap-3">
+          <div className="aspect-square h-16 grow">{dieFace && <DieFace {...dieFace} textScale={2.2} />}</div>
+
+          <div>Are you sure you want to buy this item?</div>
+        </div>
+
+        <div className="flex justify-end gap-3 text-xs">
+          <button
+            className="bg-gradient-to-b from-orange-700 to-orange-400 py-1 px-3 outline outline-1 border outline-black rounded uppercase"
+            onClick={() => {
+              buySound.play()
+              confirm()
+            }}
+          >
+            Ok
+          </button>
+
+          <button
+            className="bg-gradient-to-b from-orange-700 to-orange-400 py-1 px-3 outline outline-1 border outline-black rounded uppercase"
+            onClick={() => {
+              clickSound.play()
+              cancel()
+            }}
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+ConfirmBuyModal.waitForConfirmation = undefined as unknown as (face: Logic.DieFace) => Promise<unknown>
 
 type CashShopItemCardProps = {
   priceIndex: number
@@ -28,9 +96,11 @@ function CashShopItemCard({ priceIndex, item: { face, bought }, price }: CashSho
         <div className="h-full">
           <button
             className="w-full h-full bg-gradient-to-b from-white via-[#AAAABC] to-white text-[#002156] text-base font-bold rounded-sm uppercase outline outline-1 border"
-            onClick={() => {
+            onClick={async () => {
               clickSound.play()
-              buySound.play()
+
+              await ConfirmBuyModal.waitForConfirmation(face)
+
               Dusk.actions.buyCashShopItem({ price, priceIndex })
             }}
           >
@@ -57,6 +127,8 @@ export default function CashShop({ cashShop: { itemsByPrice } }: { cashShop: Log
           )),
         )}
       </div>
+
+      <ConfirmBuyModal />
     </div>
   )
 }
