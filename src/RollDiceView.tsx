@@ -2,6 +2,10 @@ import { useEffect, useMemo, useState } from 'react'
 
 import { useDie } from './Die.tsx'
 
+import clickSoundAudio from './assets/maple-click.mp3'
+
+const clickSound = new Howl({ src: clickSoundAudio })
+
 type RollDiceViewProps = {
   onHide: () => void
   onRollDone: () => void
@@ -32,15 +36,16 @@ const generateRollDiceView = () => {
 
     return (
       <div
-        className={`fixed z-50 w-full h-full flex flex-col gap-20 justify-center items-center transition-all ${
+        className={`fixed z-50 w-full h-full flex flex-col gap-20 justify-center items-center transition-all cursor-pointer ${
           rollDiceViewHidden && 'opacity-0 pointer-events-none'
         }`}
         onClick={() => {
-          Die1.roll(Die2)
-        }}
-        onMouseDown={() => {
+          clickSound.play()
+
           if (rollDone) {
             hideRollDiceView(true)
+          } else {
+            Die1.roll(Die2)
           }
         }}
       >

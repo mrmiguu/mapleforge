@@ -56,13 +56,7 @@ function App() {
                 setShowUi(false)
               }}
             >
-              <img
-                src={dieIconImage}
-                className="h-16"
-                style={{
-                  imageRendering: 'auto',
-                }}
-              />
+              <img src={dieIconImage} className="h-16" style={{ imageRendering: 'auto' }} />
             </button>
           </div>
         </div>
