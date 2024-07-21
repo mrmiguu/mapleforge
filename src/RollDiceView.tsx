@@ -9,10 +9,13 @@ const dieRollSound = new Howl({ src: dieRollSoundAudio })
 type RollDiceViewProps = {}
 
 export default function RollDiceView({}: RollDiceViewProps) {
+  const [rollDiceViewHidden, hideRollDiceView] = useState(false)
   const [rollStarted, setRollStarted] = useState(false)
   const [rollDone, setRollDone] = useState(false)
   const [[rotateX1, rotateY1, rotateZ1], setRotate1] = useState([0, 0, 0])
   const [[rotateX2, rotateY2, rotateZ2], setRotate2] = useState([0, 0, 0])
+
+  RollDiceView.show = () => hideRollDiceView(false)
 
   const rolled = rollStarted || rollDone
 
@@ -20,8 +23,8 @@ export default function RollDiceView({}: RollDiceViewProps) {
 
   return (
     <div
-      className={`fixed z-50 w-full h-full flex flex-col gap-20 justify-center items-center ${
-        rolled && 'pointer-events-none'
+      className={`fixed z-50 w-full h-full flex flex-col gap-20 justify-center items-center transition-all ${
+        rollDiceViewHidden && 'opacity-0 pointer-events-none'
       }`}
       onClick={() => {
         if (!rolled) {
@@ -29,6 +32,11 @@ export default function RollDiceView({}: RollDiceViewProps) {
           setRollStarted(true)
           setRotate1([Math.random() * 2400, Math.random() * 2400, Math.random() * 2400])
           setRotate2([Math.random() * 2400, Math.random() * 2400, Math.random() * 2400])
+        }
+      }}
+      onMouseDown={() => {
+        if (rollDone) {
+          hideRollDiceView(true)
         }
       }}
     >
@@ -70,3 +78,4 @@ export default function RollDiceView({}: RollDiceViewProps) {
     </div>
   )
 }
+RollDiceView.show = () => {}

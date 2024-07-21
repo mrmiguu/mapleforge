@@ -1,12 +1,13 @@
 import { PlayerId } from 'dusk-games-sdk/multiplayer'
 import { useEffect, useState } from 'react'
 
-import victoriaIslandImage from './assets/victoria-island.png'
-
 import Currency from './Currency.tsx'
 import DieFace from './DieFace.tsx'
 import * as Logic from './logic.ts'
 import RollDiceView from './RollDiceView.tsx'
+
+import dieIconImage from './assets/die-icon.png'
+import victoriaIslandImage from './assets/victoria-island.png'
 
 type CashShopItemCardProps = {
   priceIndex: number
@@ -89,6 +90,22 @@ function App() {
     <>
       {playerState.viewing === 'worldMap' && <img src={victoriaIslandImage} className="max-w-none h-screen" />}
       {playerState.viewing === 'cashShop' && <CashShop cashShop={cashShop} />}
+
+      <div className="pointer-events-none fixed w-full h-full z-40">
+        <div className="absolute w-full h-full">
+          <div className="absolute w-full bottom-0 p-4 flex justify-end bg-gradient-to-b from-transparent to-black/50">
+            <button className="pointer-events-auto" onMouseDown={() => RollDiceView.show()}>
+              <img
+                src={dieIconImage}
+                className="h-16"
+                style={{
+                  imageRendering: 'auto',
+                }}
+              />
+            </button>
+          </div>
+        </div>
+      </div>
 
       <RollDiceView />
     </>
