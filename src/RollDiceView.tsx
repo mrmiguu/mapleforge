@@ -1,10 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 
 import { useDie } from './Die.tsx'
-
-import clickSoundAudio from './assets/maple-click.mp3'
-
-const clickSound = new Howl({ src: clickSoundAudio })
+import { clickSound } from './audio.ts'
 
 type RollDiceViewProps = {
   onHide: () => void

@@ -1,5 +1,4 @@
 import { PlayerId } from 'dusk-games-sdk/multiplayer'
-import { Howl } from 'howler'
 import { useEffect, useState } from 'react'
 
 import * as Logic from './logic.ts'
@@ -7,11 +6,8 @@ import { useRollDiceView } from './RollDiceView.tsx'
 
 import dieIconImage from './assets/die-icon.png'
 import victoriaIslandImage from './assets/victoria-island.png'
+import { clickSound } from './audio.ts'
 import CashShop from './CashShop.tsx'
-
-import clickSoundAudio from './assets/maple-click.mp3'
-
-const clickSound = new Howl({ src: clickSoundAudio })
 
 function App() {
   const [game, setGame] = useState<Logic.GameState>()

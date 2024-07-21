@@ -1,14 +1,8 @@
-import { Howl } from 'howler'
 import { useMemo, useState } from 'react'
 
+import { diceRollSound, dieRollSound } from './audio.ts'
 import DieFace from './DieFace.tsx'
 import * as Logic from './logic.ts'
-
-import diceRollSoundAudio from './assets/dice-roll.wav'
-import dieRollSoundAudio from './assets/die-roll.wav'
-
-const dieRollSound = new Howl({ src: dieRollSoundAudio })
-const diceRollSound = new Howl({ src: diceRollSoundAudio })
 
 type DieProps = {
   faces: [Logic.DieFace, Logic.DieFace, Logic.DieFace, Logic.DieFace, Logic.DieFace, Logic.DieFace]

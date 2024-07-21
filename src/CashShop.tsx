@@ -1,3 +1,4 @@
+import { buySound, clickSound } from './audio.ts'
 import Currency from './Currency.tsx'
 import DieFace from './DieFace.tsx'
 import * as Logic from './logic.ts'
@@ -27,7 +28,11 @@ function CashShopItemCard({ priceIndex, item: { face, bought }, price }: CashSho
         <div className="h-full">
           <button
             className="w-full h-full bg-gradient-to-b from-white via-[#AAAABC] to-white text-[#002156] text-base font-bold rounded-sm uppercase outline outline-1 border"
-            onClick={() => Dusk.actions.buyCashShopItem({ price, priceIndex })}
+            onClick={() => {
+              clickSound.play()
+              buySound.play()
+              Dusk.actions.buyCashShopItem({ price, priceIndex })
+            }}
           >
             Buy
           </button>
