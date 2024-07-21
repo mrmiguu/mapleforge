@@ -48,7 +48,7 @@ function App() {
           <div className="absolute w-full bottom-0 p-4 flex justify-end bg-gradient-to-b from-transparent to-black/50">
             <button
               className="pointer-events-auto"
-              onMouseDown={() => {
+              onClick={() => {
                 clickSound.play()
                 RollDiceView.show()
                 setShowUi(false)
