@@ -34,8 +34,8 @@ const generateDie = () => {
 
     const [rollStarted, setRollStarted] = useState(false)
     const [rollDone, setRollDone] = useState(false)
-    const [facing, setFacing] = useState<Face>(2)
-    const [minRotateX, minRotateY, minRotateZ] = dieRotationByFace[facing] ?? [0, 0, 0]
+    const [facing, setFacing] = useState<Face>()
+    const [minRotateX, minRotateY, minRotateZ] = facing ? dieRotationByFace[facing] : [0, 0, 0]
     const rotateX = useMemo(() => minRotateX + randomSymmetry(), [minRotateX])
     const rotateY = useMemo(() => minRotateY + randomSymmetry(), [minRotateY])
     const rotateZ = useMemo(() => minRotateZ + randomSymmetry(), [minRotateZ])
