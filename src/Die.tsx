@@ -6,7 +6,7 @@ import * as Logic from './logic.ts'
 
 const randomSymmetryWithTilt = () => {
   const symmetricalRotation = 4 * (Math.floor(3 * Math.random()) + 3)
-  const randomTilt = symmetricalRotation + (Math.random() - 0.5) * 0.7
+  const randomTilt = symmetricalRotation + (Math.random() - 0.5) * 0.5
   return randomTilt
 }
 
@@ -87,7 +87,7 @@ const generateDie = () => {
           >
             <div
               className={`h-full aspect-square bg-gradient-to-br from-red-500 to-red-700 rounded-3xl p-3 border border-black transition-all duration-700 ${
-                rollDone && (facing === 1 ? 'brightness-150' : 'brightness-75')
+                rollDone && facing !== 1 && 'brightness-50'
               }`}
             >
               <DieFace {...face1} textScale={textScale} />
@@ -102,7 +102,7 @@ const generateDie = () => {
           >
             <div
               className={`h-full aspect-square bg-gradient-to-br from-red-500 to-red-700 rounded-3xl p-3 border border-black transition-all duration-700 ${
-                rollDone && (facing === 2 ? 'brightness-150' : 'brightness-75')
+                rollDone && facing !== 2 && 'brightness-50'
               }`}
             >
               <DieFace {...face2} textScale={textScale} />
@@ -117,7 +117,7 @@ const generateDie = () => {
           >
             <div
               className={`h-full aspect-square bg-gradient-to-br from-red-500 to-red-700 rounded-3xl p-3 border border-black transition-all duration-700 ${
-                rollDone && (facing === 3 ? 'brightness-150' : 'brightness-75')
+                rollDone && facing !== 3 && 'brightness-50'
               }`}
             >
               <DieFace {...face3} textScale={textScale} />
@@ -132,7 +132,7 @@ const generateDie = () => {
           >
             <div
               className={`h-full aspect-square bg-gradient-to-br from-red-500 to-red-700 rounded-3xl p-3 border border-black transition-all duration-700 ${
-                rollDone && (facing === 4 ? 'brightness-150' : 'brightness-75')
+                rollDone && facing !== 4 && 'brightness-50'
               }`}
             >
               <DieFace {...face4} textScale={textScale} />
@@ -147,7 +147,7 @@ const generateDie = () => {
           >
             <div
               className={`h-full aspect-square bg-gradient-to-br from-red-500 to-red-700 rounded-3xl p-3 border border-black transition-all duration-700 ${
-                rollDone && (facing === 5 ? 'brightness-150' : 'brightness-75')
+                rollDone && facing !== 5 && 'brightness-50'
               }`}
             >
               <DieFace {...face5} textScale={textScale} />
@@ -162,7 +162,7 @@ const generateDie = () => {
           >
             <div
               className={`h-full aspect-square bg-gradient-to-br from-red-500 to-red-700 rounded-3xl p-3 border border-black transition-all duration-700 ${
-                rollDone && (facing === 6 ? 'brightness-150' : 'brightness-75')
+                rollDone && facing !== 6 && 'brightness-50'
               }`}
             >
               <DieFace {...face6} textScale={textScale} />
