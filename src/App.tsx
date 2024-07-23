@@ -5,9 +5,9 @@ import * as Logic from './logic.ts'
 import { useRollDiceView } from './RollDiceView.tsx'
 
 import dieIconImage from './assets/die-icon.png'
-import victoriaIslandImage from './assets/victoria-island.png'
 import { clickSound } from './audio.ts'
 import CashShop from './CashShop.tsx'
+import WorldMap from './WorldMap.tsx'
 
 function App() {
   const [game, setGame] = useState<Logic.GameState>()
@@ -38,22 +38,26 @@ function App() {
 
   return (
     <>
-      {playerState.viewing === 'worldMap' && <img src={victoriaIslandImage} className="max-w-none h-screen" />}
+      {playerState.viewing === 'worldMap' && <WorldMap />}
       {playerState.viewing === 'cashShop' && <CashShop cashShop={cashShop} />}
 
       <div className={`pointer-events-none fixed w-full h-full z-40 transition-all ${!showUi && 'opacity-0'}`}>
         <div className="absolute w-full h-full">
-          <div className="absolute w-full bottom-0 p-4 flex justify-end bg-gradient-to-b from-transparent to-black/50">
-            <button
-              className={`pointer-events-auto ${!rollDone && 'animate-bounce'}`}
-              onClick={() => {
-                clickSound.play()
-                RollDiceView.show()
-                setShowUi(false)
-              }}
-            >
-              <img src={dieIconImage} className="h-16" style={{ imageRendering: 'auto' }} />
-            </button>
+          <div className="absolute w-full h-24 bottom-0 flex justify-end">
+            <div className="absolute left-0 top-0 w-full h-full bg-gradient-to-b from-transparent to-black/50" />
+
+            <div className="absolute left-0 top-0 w-full h-full p-4 flex justify-end">
+              <button
+                className={`pointer-events-auto ${!rollDone && 'animate-bounce'}`}
+                onClick={() => {
+                  clickSound.play()
+                  RollDiceView.show()
+                  setShowUi(false)
+                }}
+              >
+                <img src={dieIconImage} className="h-16" style={{ imageRendering: 'auto' }} />
+              </button>
+            </div>
           </div>
         </div>
       </div>

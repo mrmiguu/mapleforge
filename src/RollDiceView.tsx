@@ -46,31 +46,33 @@ const generateRollDiceView = () => {
           }
         }}
       >
-        <div className="absolute w-full h-full bg-black opacity-50 pointer-events-none" />
+        <div className="absolute w-full h-full bg-black/50 pointer-events-none" />
 
         <Die1
           faces={[
-            { gain: ['meso', 6] },
             { gain: ['wisdom', 1] },
             { gain: ['wisdom', 2] },
-            { gain: ['power', 1] },
-            { gain: ['power', 2] },
-            { gain: ['level', 3] },
+            { gain: ['wisdom', 3] },
+            { gain: ['wisdom', 4] },
+            { gain: ['wisdom', 5] },
+            { gain: ['wisdom', 6] },
           ]}
           onRollDone={() => setRollDone(true)}
         />
 
-        <Die2
-          faces={[
-            { gain: ['meso', 6] },
-            { gain: ['wisdom', 1] },
-            { gain: ['wisdom', 2] },
-            { gain: ['power', 1] },
-            { gain: ['power', 2] },
-            { gain: ['level', 3] },
-          ]}
-          onRollDone={() => setRollDone(true)}
-        />
+        {
+          <Die2
+            faces={[
+              { gain: ['power', 1] },
+              { gain: ['power', 2] },
+              { gain: ['power', 3] },
+              { gain: ['power', 4] },
+              { gain: ['power', 5] },
+              { gain: ['power', 6] },
+            ]}
+            onRollDone={() => setRollDone(true)}
+          />
+        }
       </div>
     )
   }

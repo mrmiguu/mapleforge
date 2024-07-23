@@ -1,27 +1,63 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 import { diceRollSound, dieRollSound } from './audio.ts'
 import DieFace from './DieFace.tsx'
 import * as Logic from './logic.ts'
 
+const randomSymmetry = () => {
+  return 4 * (Math.floor(3 * Math.random()) + 3)
+}
+
+const dieRotationByFace = {
+  1: [0, 0, 0],
+  2: [2, 3, 2],
+  3: [1, 1, 1],
+  4: [3, 3, 1],
+  5: [2, 1, 2],
+  6: [0, 2, 0],
+}
+
+type Face = keyof typeof dieRotationByFace
+
 type DieProps = {
   faces: [Logic.DieFace, Logic.DieFace, Logic.DieFace, Logic.DieFace, Logic.DieFace, Logic.DieFace]
   onRollDone: () => void
+  debug?: boolean
 }
 
 const generateDie = () => {
-  function Die({ faces: [face1, face2, face3, face4, face5, face6], onRollDone }: DieProps) {
+  function Die({ faces, onRollDone }: DieProps) {
+    const [face1, face2, face3, face4, face5, face6] = faces
     const dieSizePx = 150
     const textScale = 4.5
     const radiusPx = dieSizePx / 2
 
     const [rollStarted, setRollStarted] = useState(false)
     const [rollDone, setRollDone] = useState(false)
-    const [[rotateX, rotateY, rotateZ], setRotate] = useState([0, 0, 0])
+    const [facing, setFacing] = useState<Face>(2)
+    const [minRotateX, minRotateY, minRotateZ] = dieRotationByFace[facing] ?? [0, 0, 0]
+    const rotateX = useMemo(() => minRotateX + randomSymmetry(), [minRotateX])
+    const rotateY = useMemo(() => minRotateY + randomSymmetry(), [minRotateY])
+    const rotateZ = useMemo(() => minRotateZ + randomSymmetry(), [minRotateZ])
+    const rotateXDeg = facing ? rotateX * 90 : 45
+    const rotateYDeg = facing ? rotateY * 90 : 45
+    const rotateZDeg = facing ? rotateZ * 90 : 45
 
     const rolled = rollStarted || rollDone
 
     const animationPlayState = rollDone ? 'paused' : 'running'
+
+    useEffect(() => {
+      if (facing) {
+        const msg = `facing ${facing} => (rot) ${[rotateX, rotateY, rotateZ]} => (deg) ${[
+          rotateXDeg,
+          rotateYDeg,
+          rotateZDeg,
+        ]}`
+
+        console.log(msg)
+      }
+    }, [rotateXDeg, rotateYDeg, rotateZDeg])
 
     Die.roll = (...otherDice: (typeof Die)[]) => {
       if (!rolled) {
@@ -31,7 +67,7 @@ const generateDie = () => {
           dieRollSound.play()
         }
         setRollStarted(true)
-        setRotate([Math.random() * 2400, Math.random() * 2400, Math.random() * 2400])
+        setFacing(((Math.floor(Math.random() * 6) % 6) + 1) as Face)
       }
       for (const die of otherDice) {
         die.roll()
@@ -46,7 +82,7 @@ const generateDie = () => {
             width: `${dieSizePx}px`,
             height: `${dieSizePx}px`,
             transformStyle: 'preserve-3d',
-            transform: `rotateY(${rotateY}deg) rotateX(${rotateX}deg) rotateZ(${rotateZ}deg)`,
+            transform: `rotateY(${rotateYDeg}deg) rotateX(${rotateXDeg}deg) rotateZ(${rotateZDeg}deg)`,
           }}
           onTransitionEnd={() => {
             setRollDone(true)
@@ -67,7 +103,7 @@ const generateDie = () => {
           <div
             className="bg-red-700 absolute w-full h-full flex justify-center items-center"
             style={{
-              transform: `translateX(-${radiusPx}px) rotateY(-90deg) rotateX(180deg)`,
+              transform: `translateX(-${radiusPx}px) rotateY(-90deg) rotateX(0)`,
             }}
           >
             <div className="h-full aspect-square bg-gradient-to-br from-red-500 to-red-700 rounded-3xl p-3 border border-black">

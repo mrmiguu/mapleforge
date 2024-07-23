@@ -1,9 +1,10 @@
 import { useMemo, useState } from 'react'
 
-import { buySound, clickSound } from './audio.ts'
+import { buySound, cashShopSound, clickSound } from './audio.ts'
 import Currency from './Currency.tsx'
 import DieFace from './DieFace.tsx'
 import * as Logic from './logic.ts'
+import { usePlayMusic } from './Music.hooks.ts'
 
 function ConfirmBuyModal() {
   const [dieFace, setDieFace] = useState<Logic.DieFace>()
@@ -113,6 +114,8 @@ function CashShopItemCard({ priceIndex, item: { face, bought }, price }: CashSho
 }
 
 export default function CashShop({ cashShop: { itemsByPrice } }: { cashShop: Logic.CashShop }) {
+  usePlayMusic(cashShopSound)
+
   return (
     <div className="absolute w-full h-full flex justify-center">
       <div className="fixed left-0 top-0 w-full h-full bg-[#3064AC]" />
@@ -126,6 +129,12 @@ export default function CashShop({ cashShop: { itemsByPrice } }: { cashShop: Log
             </div>
           )),
         )}
+
+        <div
+        // Padding at bottom
+        >
+          <div className="h-24" />
+        </div>
       </div>
 
       <ConfirmBuyModal />
