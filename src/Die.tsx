@@ -1,11 +1,13 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 
 import { diceRollSound, dieRollSound } from './audio.ts'
 import DieFace from './DieFace.tsx'
 import * as Logic from './logic.ts'
 
-const randomSymmetry = () => {
-  return 4 * (Math.floor(3 * Math.random()) + 3)
+const randomSymmetryWithTilt = () => {
+  const symmetricalRotation = 4 * (Math.floor(3 * Math.random()) + 3)
+  const randomTilt = symmetricalRotation + (Math.random() - 0.5) * 0.7
+  return randomTilt
 }
 
 const dieRotationByFace = {
@@ -36,9 +38,9 @@ const generateDie = () => {
     const [rollDone, setRollDone] = useState(false)
     const [facing, setFacing] = useState<Face>()
     const [minRotateX, minRotateY, minRotateZ] = facing ? dieRotationByFace[facing] : [0, 0, 0]
-    const rotateX = useMemo(() => minRotateX + randomSymmetry(), [minRotateX])
-    const rotateY = useMemo(() => minRotateY + randomSymmetry(), [minRotateY])
-    const rotateZ = useMemo(() => minRotateZ + randomSymmetry(), [minRotateZ])
+    const rotateX = useMemo(() => minRotateX + randomSymmetryWithTilt(), [minRotateX])
+    const rotateY = useMemo(() => minRotateY + randomSymmetryWithTilt(), [minRotateY])
+    const rotateZ = useMemo(() => minRotateZ + randomSymmetryWithTilt(), [minRotateZ])
     const rotateXDeg = facing ? rotateX * 90 : 45
     const rotateYDeg = facing ? rotateY * 90 : 45
     const rotateZDeg = facing ? rotateZ * 90 : 45
@@ -46,18 +48,6 @@ const generateDie = () => {
     const rolled = rollStarted || rollDone
 
     const animationPlayState = rollDone ? 'paused' : 'running'
-
-    useEffect(() => {
-      if (facing) {
-        const msg = `facing ${facing} => (rot) ${[rotateX, rotateY, rotateZ]} => (deg) ${[
-          rotateXDeg,
-          rotateYDeg,
-          rotateZDeg,
-        ]}`
-
-        console.log(msg)
-      }
-    }, [rotateXDeg, rotateYDeg, rotateZDeg])
 
     Die.roll = (...otherDice: (typeof Die)[]) => {
       if (!rolled) {
@@ -95,7 +85,11 @@ const generateDie = () => {
               transform: `translateZ(${radiusPx}px)`,
             }}
           >
-            <div className="h-full aspect-square bg-gradient-to-br from-red-500 to-red-700 rounded-3xl p-3 border border-black">
+            <div
+              className={`h-full aspect-square bg-gradient-to-br from-red-500 to-red-700 rounded-3xl p-3 border border-black transition-all duration-700 ${
+                rollDone && (facing === 1 ? 'brightness-150' : 'brightness-75')
+              }`}
+            >
               <DieFace {...face1} textScale={textScale} />
             </div>
           </div>
@@ -106,7 +100,11 @@ const generateDie = () => {
               transform: `translateX(-${radiusPx}px) rotateY(-90deg) rotateX(0)`,
             }}
           >
-            <div className="h-full aspect-square bg-gradient-to-br from-red-500 to-red-700 rounded-3xl p-3 border border-black">
+            <div
+              className={`h-full aspect-square bg-gradient-to-br from-red-500 to-red-700 rounded-3xl p-3 border border-black transition-all duration-700 ${
+                rollDone && (facing === 2 ? 'brightness-150' : 'brightness-75')
+              }`}
+            >
               <DieFace {...face2} textScale={textScale} />
             </div>
           </div>
@@ -117,7 +115,11 @@ const generateDie = () => {
               transform: `translateY(${radiusPx}px) rotateX(90deg) rotateX(180deg)`,
             }}
           >
-            <div className="h-full aspect-square bg-gradient-to-br from-red-500 to-red-700 rounded-3xl p-3 border border-black">
+            <div
+              className={`h-full aspect-square bg-gradient-to-br from-red-500 to-red-700 rounded-3xl p-3 border border-black transition-all duration-700 ${
+                rollDone && (facing === 3 ? 'brightness-150' : 'brightness-75')
+              }`}
+            >
               <DieFace {...face3} textScale={textScale} />
             </div>
           </div>
@@ -128,7 +130,11 @@ const generateDie = () => {
               transform: `translateY(-${radiusPx}px) rotateX(90deg)`,
             }}
           >
-            <div className="h-full aspect-square bg-gradient-to-br from-red-500 to-red-700 rounded-3xl p-3 border border-black">
+            <div
+              className={`h-full aspect-square bg-gradient-to-br from-red-500 to-red-700 rounded-3xl p-3 border border-black transition-all duration-700 ${
+                rollDone && (facing === 4 ? 'brightness-150' : 'brightness-75')
+              }`}
+            >
               <DieFace {...face4} textScale={textScale} />
             </div>
           </div>
@@ -139,7 +145,11 @@ const generateDie = () => {
               transform: `translateX(${radiusPx}px) rotateY(90deg)`,
             }}
           >
-            <div className="h-full aspect-square bg-gradient-to-br from-red-500 to-red-700 rounded-3xl p-3 border border-black">
+            <div
+              className={`h-full aspect-square bg-gradient-to-br from-red-500 to-red-700 rounded-3xl p-3 border border-black transition-all duration-700 ${
+                rollDone && (facing === 5 ? 'brightness-150' : 'brightness-75')
+              }`}
+            >
               <DieFace {...face5} textScale={textScale} />
             </div>
           </div>
@@ -150,7 +160,11 @@ const generateDie = () => {
               transform: `translateZ(-${radiusPx}px) rotateY(180deg)`,
             }}
           >
-            <div className="h-full aspect-square bg-gradient-to-br from-red-500 to-red-700 rounded-3xl p-3 border border-black">
+            <div
+              className={`h-full aspect-square bg-gradient-to-br from-red-500 to-red-700 rounded-3xl p-3 border border-black transition-all duration-700 ${
+                rollDone && (facing === 6 ? 'brightness-150' : 'brightness-75')
+              }`}
+            >
               <DieFace {...face6} textScale={textScale} />
             </div>
           </div>
