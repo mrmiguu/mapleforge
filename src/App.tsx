@@ -5,6 +5,8 @@ import * as Logic from './logic.ts'
 import { useRollDiceView } from './RollDiceView.tsx'
 
 import dieIconImage from './assets/die-icon.png'
+import mesoBagIconImage from './assets/meso-bag-icon.png'
+import worldMapIconImage from './assets/world-map-icon.png'
 import { clickSound } from './audio.ts'
 import CashShop from './CashShop.tsx'
 import WorldMap from './WorldMap.tsx'
@@ -12,7 +14,6 @@ import WorldMap from './WorldMap.tsx'
 function App() {
   const [game, setGame] = useState<Logic.GameState>()
   const [yourPlayerId, setYourPlayerId] = useState<PlayerId | undefined>()
-  const [showUi, setShowUi] = useState(false)
 
   const RollDiceView = useRollDiceView()
   const [rollDone, setRollDone] = useState(false)
@@ -41,21 +42,50 @@ function App() {
       {playerState.viewing === 'worldMap' && <WorldMap />}
       {playerState.viewing === 'cashShop' && <CashShop cashShop={cashShop} />}
 
-      <div className={`pointer-events-none fixed w-full h-full z-40 transition-all ${!showUi && 'opacity-0'}`}>
+      <div className="pointer-events-none fixed w-full h-full z-40">
         <div className="absolute w-full h-full">
-          <div className="absolute w-full h-24 bottom-0 flex justify-end">
-            <div className="absolute left-0 top-0 w-full h-full bg-gradient-to-b from-transparent to-black/50" />
+          <div className="absolute w-full h-16 bottom-0">
+            <div className="absolute w-full h-full bg-gradient-to-b from-slate-200 via-slate-400 to-slate-400 border-t border-slate-50 outline outline-1 outline-slate-500" />
 
-            <div className="absolute left-0 top-0 w-full h-full p-4 flex justify-end">
+            <div className="absolute w-full h-full p-1 flex gap-1">
+              <div className="grow pointer-events-auto px-4 rounded bg-gradient-to-b from-gray-500 via-gray-700 to-gray-700"></div>
+
+              {playerState.viewing === 'worldMap' && (
+                <button
+                  className="pointer-events-auto px-4 rounded bg-gradient-to-r from-red-500 to-red-700 border outline outline-1 outline-red-700"
+                  onClick={() => {
+                    clickSound.play()
+                    Dusk.actions.switchView({ view: 'cashShop' })
+                  }}
+                >
+                  <img src={mesoBagIconImage} className="w-10" style={{ imageRendering: 'auto' }} />
+                </button>
+              )}
+
+              {playerState.viewing === 'cashShop' && (
+                <button
+                  className="pointer-events-auto px-4 rounded bg-gradient-to-r from-blue-500 to-blue-700 border outline outline-1 outline-blue-700"
+                  onClick={() => {
+                    clickSound.play()
+                    Dusk.actions.switchView({ view: 'worldMap' })
+                  }}
+                >
+                  <img src={worldMapIconImage} className="w-10" style={{ imageRendering: 'auto' }} />
+                </button>
+              )}
+
               <button
-                className={`pointer-events-auto ${!rollDone && 'animate-bounce'}`}
+                className="pointer-events-auto px-4 rounded bg-gradient-to-r from-green-500 to-green-700 border outline outline-1 outline-green-700"
                 onClick={() => {
                   clickSound.play()
                   RollDiceView.show()
-                  setShowUi(false)
                 }}
               >
-                <img src={dieIconImage} className="h-16" style={{ imageRendering: 'auto' }} />
+                <img
+                  src={dieIconImage}
+                  className={`w-10 ${!rollDone && 'animate-bounce'}`}
+                  style={{ imageRendering: 'auto' }}
+                />
               </button>
             </div>
           </div>
@@ -63,9 +93,6 @@ function App() {
       </div>
 
       <RollDiceView
-        onHide={() => {
-          setShowUi(true)
-        }}
         onRollDone={() => {
           setRollDone(true)
         }}

@@ -133,7 +133,7 @@ export default function CashShop({ cashShop: { itemsByPrice } }: { cashShop: Log
         <div
         // Padding at bottom
         >
-          <div className="h-24" />
+          <div className="h-16" />
         </div>
       </div>
 

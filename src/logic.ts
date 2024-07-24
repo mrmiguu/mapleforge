@@ -106,6 +106,7 @@ export interface GameState {
 }
 
 type GameActions = {
+  switchView: ({ view }: { view: View }) => void
   buyCashShopItem: ({ price, priceIndex }: { price: number; priceIndex: number }) => void
 }
 
@@ -125,7 +126,7 @@ Dusk.initLogic({
     playerStateById: allPlayerIds.reduce<GameState['playerStateById']>((acc, id) => {
       acc[id] = {
         id,
-        viewing: 'cashShop',
+        viewing: 'worldMap',
       }
       return acc
     }, {}),
@@ -143,6 +144,10 @@ Dusk.initLogic({
     },
   }),
   actions: {
+    switchView({ view }, { game, playerId }) {
+      game.playerStateById[playerId].viewing = view
+    },
+
     buyCashShopItem: ({ price, priceIndex }, { game }) => {
       game.cashShop.itemsByPrice[price][priceIndex].bought = true
       //   if (game.cells[cellIndex] !== null || playerId === game.lastMovePlayerId) {

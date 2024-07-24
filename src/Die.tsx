@@ -4,8 +4,8 @@ import { diceRollSound, dieRollSound } from './audio.ts'
 import DieFace from './DieFace.tsx'
 import * as Logic from './logic.ts'
 
-const randomSymmetryWithTilt = () => {
-  const symmetricalRotation = 4 * (Math.floor(3 * Math.random()) + 3)
+const randomSymmetryWithTilt = (onlyTilt?: boolean) => {
+  const symmetricalRotation = onlyTilt ? 0 : 4 * (Math.floor(3 * Math.random()) + 3)
   const randomTilt = symmetricalRotation + (Math.random() - 0.5) * 0.5
   return randomTilt
 }
@@ -38,9 +38,9 @@ const generateDie = () => {
     const [rollDone, setRollDone] = useState(false)
     const [facing, setFacing] = useState<Face>()
     const [minRotateX, minRotateY, minRotateZ] = facing ? dieRotationByFace[facing] : [0, 0, 0]
-    const rotateX = useMemo(() => minRotateX + randomSymmetryWithTilt(), [minRotateX])
-    const rotateY = useMemo(() => minRotateY + randomSymmetryWithTilt(), [minRotateY])
-    const rotateZ = useMemo(() => minRotateZ + randomSymmetryWithTilt(), [minRotateZ])
+    const rotateX = useMemo(() => minRotateX + randomSymmetryWithTilt(!facing), [minRotateX, facing])
+    const rotateY = useMemo(() => minRotateY + randomSymmetryWithTilt(!facing), [minRotateY, facing])
+    const rotateZ = useMemo(() => minRotateZ + randomSymmetryWithTilt(!facing), [minRotateZ, facing])
     const rotateXDeg = rotateX * 90
     const rotateYDeg = rotateY * 90
     const rotateZDeg = rotateZ * 90

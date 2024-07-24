@@ -4,7 +4,7 @@ import { useDie } from './Die.tsx'
 import { clickSound } from './audio.ts'
 
 type RollDiceViewProps = {
-  onHide: () => void
+  onHide?: () => void
   onRollDone: () => void
 }
 
@@ -19,7 +19,7 @@ const generateRollDiceView = () => {
 
     useEffect(() => {
       if (rollDiceViewHidden) {
-        onHide()
+        onHide?.()
       }
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [rollDiceViewHidden])
