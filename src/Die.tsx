@@ -41,9 +41,9 @@ const generateDie = () => {
     const rotateX = useMemo(() => minRotateX + randomSymmetryWithTilt(), [minRotateX])
     const rotateY = useMemo(() => minRotateY + randomSymmetryWithTilt(), [minRotateY])
     const rotateZ = useMemo(() => minRotateZ + randomSymmetryWithTilt(), [minRotateZ])
-    const rotateXDeg = facing ? rotateX * 90 : 45
-    const rotateYDeg = facing ? rotateY * 90 : 45
-    const rotateZDeg = facing ? rotateZ * 90 : 45
+    const rotateXDeg = rotateX * 90
+    const rotateYDeg = rotateY * 90
+    const rotateZDeg = rotateZ * 90
 
     const rolled = rollStarted || rollDone
 
