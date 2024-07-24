@@ -5,6 +5,7 @@ export type View = 'worldMap' | 'cashShop'
 export type PlayerState = {
   id: PlayerId
   viewing: View
+  level: number
 }
 
 export type GainType = 'meso' | 'power' | 'wisdom' | 'level'
@@ -127,6 +128,7 @@ Dusk.initLogic({
       acc[id] = {
         id,
         viewing: 'worldMap',
+        level: 1,
       }
       return acc
     }, {}),
