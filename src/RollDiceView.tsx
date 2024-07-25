@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 
+import * as Logic from './logic.ts'
+
 import { useDie } from './Die.tsx'
 import { clickSound } from './audio.ts'
 
@@ -8,7 +10,7 @@ type RollDiceViewProps = {
   onRollDone: () => void
 }
 
-const generateRollDiceView = () => {
+const generateRollDiceView = (dice: [Logic.Die, Logic.Die]) => {
   function RollDiceView({ onHide, onRollDone }: RollDiceViewProps) {
     const [rollDiceViewHidden, hideRollDiceView] = useState(true)
     const [rollDone, setRollDone] = useState(false)
@@ -48,31 +50,9 @@ const generateRollDiceView = () => {
       >
         <div className="absolute w-full h-full bg-black/50 pointer-events-none" />
 
-        <Die1
-          faces={[
-            { gain: ['wisdom', 1] },
-            { gain: ['wisdom', 2] },
-            { gain: ['wisdom', 3] },
-            { gain: ['wisdom', 4] },
-            { gain: ['wisdom', 5] },
-            { gain: ['wisdom', 6] },
-          ]}
-          onRollDone={() => setRollDone(true)}
-        />
+        <Die1 faces={dice[0]} onRollDone={() => setRollDone(true)} />
 
-        {
-          <Die2
-            faces={[
-              { gain: ['power', 1] },
-              { gain: ['power', 2] },
-              { gain: ['power', 3] },
-              { gain: ['power', 4] },
-              { gain: ['power', 5] },
-              { gain: ['power', 6] },
-            ]}
-            onRollDone={() => setRollDone(true)}
-          />
-        }
+        {<Die2 faces={dice[1]} onRollDone={() => setRollDone(true)} />}
       </div>
     )
   }
@@ -82,4 +62,4 @@ const generateRollDiceView = () => {
   return RollDiceView
 }
 
-export const useRollDiceView = () => useMemo(generateRollDiceView, [])
+export const useRollDiceView = (dice: [Logic.Die, Logic.Die]) => useMemo(() => generateRollDiceView(dice), [dice])

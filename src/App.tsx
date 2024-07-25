@@ -11,31 +11,24 @@ import { clickSound } from './audio.ts'
 import CashShop from './CashShop.tsx'
 import WorldMap from './WorldMap.tsx'
 
-function App() {
-  const [game, setGame] = useState<Logic.GameState>()
-  const [yourPlayerId, setYourPlayerId] = useState<PlayerId | undefined>()
+type AppWithGameProps = {
+  game: Logic.GameState
+  yourPlayerId: PlayerId
+}
 
-  const RollDiceView = useRollDiceView()
+function AppWithGame({ game, yourPlayerId }: AppWithGameProps) {
+  const { playerStateById, cashShop } = game
+  const playerState = playerStateById[yourPlayerId]
+
+  const RollDiceView = useRollDiceView(playerState.dice)
   const [rollDone, setRollDone] = useState(false)
 
   useEffect(() => {
-    Dusk.initClient({
-      onChange: ({ game, yourPlayerId }) => {
-        setGame(game)
-        setYourPlayerId(yourPlayerId)
-
-        // if (action && action.name === 'claimCell') clickSound.play()
-      },
-    })
-  }, [])
-
-  if (!game || !yourPlayerId) {
-    // Dusk only shows your game after an onChange() so no need for loading screen
-    return
-  }
-
-  const { playerStateById, cashShop } = game
-  const playerState = playerStateById[yourPlayerId]
+    if (playerState.showDiceRoll) {
+      RollDiceView.show()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [playerState.showDiceRoll])
 
   return (
     <>
@@ -110,9 +103,33 @@ function App() {
         onRollDone={() => {
           setRollDone(true)
         }}
+        onHide={() => {
+          Dusk.actions.showDiceRoll({ show: false })
+        }}
       />
     </>
   )
+}
+
+function App() {
+  const [game, setGame] = useState<Logic.GameState>()
+  const [yourPlayerId, setYourPlayerId] = useState<PlayerId | undefined>()
+
+  useEffect(() => {
+    Dusk.initClient({
+      onChange: ({ game, yourPlayerId }) => {
+        setGame(game)
+        setYourPlayerId(yourPlayerId)
+      },
+    })
+  }, [])
+
+  if (!game || !yourPlayerId) {
+    // Dusk only shows your game after an onChange() so no need for loading screen
+    return
+  }
+
+  return <AppWithGame game={game} yourPlayerId={yourPlayerId} />
 }
 
 export default App

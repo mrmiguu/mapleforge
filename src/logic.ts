@@ -2,9 +2,13 @@ import type { DuskClient, PlayerId } from 'dusk-games-sdk/multiplayer'
 
 export type View = 'worldMap' | 'cashShop'
 
+export type Die = [DieFace, DieFace, DieFace, DieFace, DieFace, DieFace]
+
 export type PlayerState = {
   id: PlayerId
   viewing: View
+  showDiceRoll: boolean
+  dice: [Die, Die]
   level: number
 }
 
@@ -27,6 +31,11 @@ export type DieFaceAnd = {
 }
 export type DieFace = DieFaceSingle | DieFaceOr | DieFaceAnd
 
+// Uniquely default
+const M1: DieFace = { gain: ['meso', 1] }
+const M2: DieFace = { gain: ['meso', 2] }
+const L1: DieFace = { gain: ['level', 1] }
+// Cash Shop only
 const M3: DieFace = { gain: ['meso', 3] }
 const M4: DieFace = { gain: ['meso', 4] }
 const M6: DieFace = { gain: ['meso', 6] }
@@ -101,13 +110,16 @@ export type CashShop = {
 
 export interface GameState {
   playerIds: PlayerId[]
-  whoseTurn: PlayerId
+  whoseTurn?: PlayerId
+  playerOrder: { [id in PlayerId]: number }
   playerStateById: { [id in PlayerId]: PlayerState }
   cashShop: CashShop
 }
 
 type GameActions = {
+  rollToDecideOrder: ({ faces }: { faces: [number, number] }) => void
   switchView: ({ view }: { view: View }) => void
+  showDiceRoll: ({ show }: { show: boolean }) => void
   buyCashShopItem: ({ price, priceIndex }: { price: number; priceIndex: number }) => void
 }
 
@@ -122,17 +134,23 @@ const csItems = (...dieFaces: DieFace[]): CashShopItem[] => {
 Dusk.initLogic({
   minPlayers: 2,
   maxPlayers: 4,
+
   setup: allPlayerIds => ({
     playerIds: allPlayerIds,
+    playerOrder: {},
     playerStateById: allPlayerIds.reduce<GameState['playerStateById']>((acc, id) => {
       acc[id] = {
         id,
+        dice: [
+          [M1, M1, M1, M1, W1, P1],
+          [M1, M1, M1, M1, M2, L1],
+        ],
         viewing: 'worldMap',
+        showDiceRoll: true,
         level: 1,
       }
       return acc
     }, {}),
-    whoseTurn: allPlayerIds[0],
     cashShop: {
       itemsByPrice: {
         2: csItems(W1, W1, W1, W1, M3, M3, M3, M3),
@@ -146,36 +164,29 @@ Dusk.initLogic({
     },
   }),
   actions: {
+    rollToDecideOrder({ faces: [face1, face2] }, { game, playerId }) {
+      const dieFace1 = game.playerStateById[playerId].dice[0][face1]
+      const dieFace2 = game.playerStateById[playerId].dice[0][face2]
+      if ('op' in dieFace1 || 'op' in dieFace2) {
+        throw new Error('Die face must not be an or/and face')
+      }
+
+      const [, a] = dieFace1.gain
+      const [, b] = dieFace2.gain
+
+      game.playerOrder[playerId] = a + b
+    },
+
     switchView({ view }, { game, playerId }) {
       game.playerStateById[playerId].viewing = view
     },
 
+    showDiceRoll({ show }, { game, playerId }) {
+      game.playerStateById[playerId].showDiceRoll = show
+    },
+
     buyCashShopItem: ({ price, priceIndex }, { game }) => {
       game.cashShop.itemsByPrice[price][priceIndex].bought = true
-      //   if (game.cells[cellIndex] !== null || playerId === game.lastMovePlayerId) {
-      //     throw Dusk.invalidAction()
-      //   }
-      //   game.cells[cellIndex] = playerId
-      //   game.lastMovePlayerId = playerId
-      //   game.winCombo = findWinningCombo(game.cells)
-      //   if (game.winCombo) {
-      //     const [player1, player2] = allPlayerIds
-      //     Dusk.gameOver({
-      //       players: {
-      //         [player1]: game.lastMovePlayerId === player1 ? 'WON' : 'LOST',
-      //         [player2]: game.lastMovePlayerId === player2 ? 'WON' : 'LOST',
-      //       },
-      //     })
-      //   }
-      //   game.freeCells = game.cells.findIndex(cell => cell === null) !== -1
-      //   if (!game.freeCells) {
-      //     Dusk.gameOver({
-      //       players: {
-      //         [game.playerIds[0]]: 'LOST',
-      //         [game.playerIds[1]]: 'LOST',
-      //       },
-      //     })
-      //   }
     },
   },
 })
