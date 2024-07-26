@@ -1,4 +1,4 @@
-import { useContext, useEffect, useMemo, useState } from 'react'
+import { useContext, useMemo, useState } from 'react'
 
 import { clickSound, kpqSound } from './audio.ts'
 import CashShop from './CashShop.tsx'
@@ -15,33 +15,15 @@ import mesoBagIconImage from './assets/meso-bag-icon.png'
 import worldMapIconImage from './assets/world-map-icon.png'
 
 function InstructionsScreenRollToDecideWhoGoesFirst() {
-  const {
-    game: { playerIds },
-  } = useContext(GameStateContext)
-
   const mapleForgeMascotImage = useMemo(
     () => (Math.random() < 0.5 ? mapleForgeMascot1Image : mapleForgeMascot2Image),
     [],
   )
+  const { game, yourPlayerId } = useContext(GameStateContext)
+  const myDecidingRoll = game.playerOrder[yourPlayerId]
   const MyDiceRollModal = useDiceRollModal(Logic.StartingDice)
-  const [rolled, setRolled] = useState<[Logic.DieFace, Logic.DieFace]>()
-  const [rollSum, setRollSum] = useState<number>()
 
-  useEffect(() => {
-    if (!rolled) {
-      return
-    }
-
-    const [face1, face2] = rolled
-    if ('op' in face1 || 'op' in face2) {
-      throw new Error('Starting dice must not contain any or/and faces')
-    }
-
-    const rollSum = face1.gain[1] + face2.gain[1]
-    setRollSum(rollSum)
-  }, [rolled])
-
-  const totalOnline = playerIds.length
+  const totalOnline = Logic.totalOnline(game)
 
   return (
     <div
@@ -52,23 +34,23 @@ function InstructionsScreenRollToDecideWhoGoesFirst() {
         className="w-full h-full max-w-48 max-h-48 p-4 bg-gradient-to-t from-amber-700 to-amber-600 rounded shadow-2xl outline outline-8 outline-amber-800 flex flex-col gap-2 justify-center items-center"
         onClick={async () => {
           clickSound.play()
-          setRolled(await MyDiceRollModal.waitForRoll())
+          await MyDiceRollModal.waitForRoll()
         }}
       >
         <div className="flex flex-col justify-center items-center">
           <div className="text-amber-50 text-6xl font-bold text-center font-damage uppercase">
-            {!rolled && <>Roll!</>}
-            {rolled && <>{rollSum}</>}
+            {!myDecidingRoll && <>Roll!</>}
+            {myDecidingRoll && <>{myDecidingRoll}</>}
           </div>
           <div className="text-amber-50 text-xs text-center">
-            {!rolled && <>Decide who goes first</>}
-            {rolled && <>Waiting for other players</>}
+            {!myDecidingRoll && <>Decide who goes first</>}
+            {myDecidingRoll && <>Waiting for other players</>}
           </div>
         </div>
 
         <img
           src={dieIconImage}
-          className={`w-20 ${rolled ? 'animate-spin' : 'animate-bounce'}`}
+          className={`w-20 ${myDecidingRoll ? 'animate-spin' : 'animate-bounce'}`}
           style={{ imageRendering: 'auto' }}
         />
       </button>
@@ -88,28 +70,31 @@ function App() {
   usePlayMusic(kpqSound)
   const { game, yourPlayerId } = useContext(GameStateContext)
   const { playerStateById, playerOrder, cashShop } = game
-  const playerState = playerStateById[yourPlayerId]
+  const playerState = playerStateById[yourPlayerId]!
 
   const MyDiceRollModal = useDiceRollModal(playerState.dice)
   const [rolled, setRolled] = useState<[Logic.DieFace, Logic.DieFace]>()
 
-  useEffect(() => {
-    if (!playerState.showDiceRoll) {
-      return
-    }
+  // useEffect(() => {
+  //   if (!playerState.showDiceRoll) {
+  //     return
+  //   }
 
-    const roll = async () => {
-      setRolled(await MyDiceRollModal.waitForRoll())
-    }
-    roll()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [playerState.showDiceRoll])
+  //   const roll = async () => {
+  //     setRolled(await MyDiceRollModal.waitForRoll())
+  //   }
+  //   roll()
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [playerState.showDiceRoll])
 
-  const showInstructionsScreenRollToDecideWhoGoesFirst = !(yourPlayerId in playerOrder)
+  const showInstructionsScreenRollToDecideWhoGoesFirst = !Logic.currentPlayerTurn(game)
+
+  if (showInstructionsScreenRollToDecideWhoGoesFirst) {
+    return <InstructionsScreenRollToDecideWhoGoesFirst />
+  }
 
   return (
     <>
-      {showInstructionsScreenRollToDecideWhoGoesFirst && <InstructionsScreenRollToDecideWhoGoesFirst />}
       {playerState.viewing === 'worldMap' && <WorldMap />}
       {playerState.viewing === 'cashShop' && <CashShop cashShop={cashShop} />}
 

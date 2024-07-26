@@ -6,11 +6,15 @@ export type View = 'worldMap' | 'cashShop'
 
 export type Die = [DieFace, DieFace, DieFace, DieFace, DieFace, DieFace]
 
+export type DieFaceNum = 1 | 2 | 3 | 4 | 5 | 6
+export type WhichDie = 1 | 2
+
 export type PlayerState = {
   id: PlayerId
   viewing: View | null
   showDiceRoll: boolean
   dice: [Die, Die]
+  rolledNums: [DieFaceNum | undefined, DieFaceNum | undefined]
   level: number
 }
 
@@ -32,6 +36,35 @@ export type DieFaceAnd = {
   op: DieFaceGainAndOp
 }
 export type DieFace = DieFaceSingle | DieFaceOr | DieFaceAnd
+
+export type CashShopItem = {
+  face: DieFace
+  bought?: boolean
+}
+
+export type CashShop = {
+  itemsByPrice: { [price: number]: CashShopItem[] }
+}
+
+export type GameState = {
+  whoseTurn?: PlayerId
+  playerOrder: { [id in PlayerId]: number }
+  firstPlayerDecidedAt?: number
+  playerStateById: { [id in PlayerId]: PlayerState }
+  cashShop: CashShop
+}
+
+type GameActions = {
+  rollDie: ({ which }: { which: WhichDie }) => void
+  // rollToDecideOrder: ({ rolled }: { rolled: [DieFace, DieFace] }) => void
+  switchView: ({ view }: { view: View }) => void
+  showDiceRoll: ({ show }: { show: boolean }) => void
+  buyCashShopItem: ({ price, priceIndex }: { price: number; priceIndex: number }) => void
+}
+
+declare global {
+  const Dusk: DuskClient<GameState, GameActions>
+}
 
 // Uniquely default
 const M1: DieFace = { gain: ['meso', 1] }
@@ -106,62 +139,63 @@ const WaL2: DieFaceAnd = {
 const StartingDie: Die = [M1, M2, M3, M4, M5, M6]
 export const StartingDice: [Die, Die] = [StartingDie, StartingDie]
 
-export type CashShopItem = {
-  face: DieFace
-  bought?: boolean
+export const DIE_ROLL_DURATION_MS = 1600
+
+export const totalOnline = (game: GameState): number => {
+  return Object.keys(game.playerStateById).length
 }
 
-export type CashShop = {
-  itemsByPrice: { [price: number]: CashShopItem[] }
+const _firstPlayer = (game: GameState): PlayerId | undefined => {
+  const playersOnline = new Set(Object.keys(game.playerStateById))
+  const playersWhoRolled = new Set(Object.keys(game.playerOrder))
+  if (playersOnline.difference(playersWhoRolled).size > 0) {
+    return undefined
+  }
+  return Object.entries(game.playerOrder).sort(([, a], [, b]) => b - a)[0]?.[0]
 }
 
-export type GameState = {
-  playerIds: PlayerId[]
-  whoseTurn?: PlayerId
-  playerOrder: { [id in PlayerId]: number }
-  playerStateById: { [id in PlayerId]: PlayerState }
-  cashShop: CashShop
+export const currentPlayerTurn = (game: GameState): PlayerId | undefined => {
+  return _firstPlayer(game) && game.whoseTurn
 }
 
-type GameActions = {
-  rollToDecideOrder: ({ faces }: { faces: [number, number] }) => void
-  switchView: ({ view }: { view: View }) => void
-  showDiceRoll: ({ show }: { show: boolean }) => void
-  buyCashShopItem: ({ price, priceIndex }: { price: number; priceIndex: number }) => void
+export const decidingRollSum = (rolled: [DieFace, DieFace]): number => {
+  if ('op' in rolled[0] || 'op' in rolled[1]) {
+    throw new Error('Dice rolled when deciding who goes first must not contain any or/and faces')
+    // throw Dusk.invalidAction()
+  }
+
+  const [, a] = rolled[0].gain
+  const [, b] = rolled[1].gain
+
+  return a + b
 }
 
-declare global {
-  const Dusk: DuskClient<GameState, GameActions>
+const getDefaultPlayerState = (id: PlayerId): PlayerState => {
+  return {
+    id,
+    dice: [
+      [M1, M1, M1, M1, W1, P1],
+      [M1, M1, M1, M1, M2, L1],
+    ],
+    rolledNums: [undefined, undefined],
+    viewing: 'worldMap',
+    showDiceRoll: false,
+    level: 1,
+  }
 }
-
-export type Phase = 'rollToDecideOrder' | 'gameplay'
-
-// const getGamePhase = (game: GameState): Phase => {
-
-// }
 
 const csItems = (...dieFaces: DieFace[]): CashShopItem[] => {
   return dieFaces.map(face => ({ face }))
 }
 
 Dusk.initLogic({
-  minPlayers: 2,
+  minPlayers: 1,
   maxPlayers: 4,
 
   setup: allPlayerIds => ({
-    playerIds: allPlayerIds,
     playerOrder: {},
     playerStateById: allPlayerIds.reduce<GameState['playerStateById']>((acc, id) => {
-      acc[id] = {
-        id,
-        dice: [
-          [M1, M1, M1, M1, W1, P1],
-          [M1, M1, M1, M1, M2, L1],
-        ],
-        viewing: null,
-        showDiceRoll: false,
-        level: 1,
-      }
+      acc[id] = getDefaultPlayerState(id)
       return acc
     }, {}),
     cashShop: {
@@ -176,30 +210,55 @@ Dusk.initLogic({
       },
     },
   }),
+
   actions: {
-    rollToDecideOrder({ faces: [face1, face2] }, { game, playerId }) {
-      const dieFace1 = game.playerStateById[playerId].dice[0][face1]
-      const dieFace2 = game.playerStateById[playerId].dice[0][face2]
-      if ('op' in dieFace1 || 'op' in dieFace2) {
-        throw new Error('Die face must not be an or/and face')
+    rollDie({ which }, { game, playerId }) {
+      const { rolledNums } = game.playerStateById[playerId]!
+      const faceNum = ((Math.floor(Math.random() * 6) % 6) + 1) as DieFaceNum
+
+      rolledNums[which - 1] = faceNum
+      game.playerOrder[playerId] = 1
+
+      if (!(playerId in game.playerOrder)) {
+        const rolled1 = rolledNums[0]
+        const rolled2 = rolledNums[1]
+
+        if (rolled1 && rolled2) {
+          game.playerOrder[playerId] = rolled1 + rolled2
+        }
       }
 
-      const [, a] = dieFace1.gain
-      const [, b] = dieFace2.gain
-
-      game.playerOrder[playerId] = a + b
+      if (_firstPlayer(game)) {
+        game.firstPlayerDecidedAt = Dusk.gameTime() + 3000
+      }
     },
 
+    // rollToDecideOrder({ rolled }, { game, playerId }) {
+    //   game.playerOrder[playerId] = decidingRollSum(rolled)
+    // },
+
     switchView({ view }, { game, playerId }) {
-      game.playerStateById[playerId].viewing = view
+      game.playerStateById[playerId]!.viewing = view
     },
 
     showDiceRoll({ show }, { game, playerId }) {
-      game.playerStateById[playerId].showDiceRoll = show
+      game.playerStateById[playerId]!.showDiceRoll = show
     },
 
     buyCashShopItem: ({ price, priceIndex }, { game }) => {
-      game.cashShop.itemsByPrice[price][priceIndex].bought = true
+      game.cashShop.itemsByPrice[price]![priceIndex]!.bought = true
+    },
+  },
+
+  update({ game }) {
+    if (game.firstPlayerDecidedAt && Dusk.gameTime() > game.firstPlayerDecidedAt) {
+      game.whoseTurn = _firstPlayer(game)
+    }
+  },
+
+  events: {
+    playerJoined(playerId, eventContext) {
+      eventContext.game.playerStateById[playerId] = getDefaultPlayerState(playerId)
     },
   },
 })
