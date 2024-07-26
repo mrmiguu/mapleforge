@@ -15,6 +15,10 @@ import mesoBagIconImage from './assets/meso-bag-icon.png'
 import worldMapIconImage from './assets/world-map-icon.png'
 
 function InstructionsScreenRollToDecideWhoGoesFirst() {
+  const {
+    game: { playerIds },
+  } = useContext(GameStateContext)
+
   const mapleForgeMascotImage = useMemo(
     () => (Math.random() < 0.5 ? mapleForgeMascot1Image : mapleForgeMascot2Image),
     [],
@@ -37,9 +41,11 @@ function InstructionsScreenRollToDecideWhoGoesFirst() {
     setRollSum(rollSum)
   }, [rolled])
 
+  const totalOnline = playerIds.length
+
   return (
     <div
-      className="bg-gradient-to-tr from-lime-300 to-emerald-600 absolute w-full h-full flex flex-col gap-4 justify-center items-center bg-cover bg-center"
+      className="absolute w-full h-full flex flex-col gap-4 justify-center items-center bg-cover bg-center"
       style={{ backgroundImage: `url(${mapleForgeMascotImage})` }}
     >
       <button
@@ -65,6 +71,12 @@ function InstructionsScreenRollToDecideWhoGoesFirst() {
           style={{ imageRendering: 'auto' }}
         />
       </button>
+
+      <div className="absolute w-full h-full left-0 top-0 flex justify-end items-end p-4 pointer-events-none">
+        <div className="px-3 rounded bg-white/20 backdrop-blur flex items-center gap-2 text-white">
+          <span className="font-damage text-3xl uppercase">{totalOnline}</span> <span className="text-xs">Online</span>
+        </div>
+      </div>
 
       <MyDiceRollModal />
     </div>
