@@ -1,4 +1,6 @@
-import type { DuskClient, PlayerId } from 'dusk-games-sdk/multiplayer'
+import type { DuskClient, PlayerId as DuskPlayerId } from 'dusk-games-sdk/multiplayer'
+
+export type PlayerId = DuskPlayerId
 
 export type View = 'worldMap' | 'cashShop'
 
@@ -6,7 +8,7 @@ export type Die = [DieFace, DieFace, DieFace, DieFace, DieFace, DieFace]
 
 export type PlayerState = {
   id: PlayerId
-  viewing: View
+  viewing: View | null
   showDiceRoll: boolean
   dice: [Die, Die]
   level: number
@@ -35,6 +37,8 @@ export type DieFace = DieFaceSingle | DieFaceOr | DieFaceAnd
 const M1: DieFace = { gain: ['meso', 1] }
 const M2: DieFace = { gain: ['meso', 2] }
 const L1: DieFace = { gain: ['level', 1] }
+// Only for the starting dice
+const M5: DieFace = { gain: ['meso', 5] }
 // Cash Shop only
 const M3: DieFace = { gain: ['meso', 3] }
 const M4: DieFace = { gain: ['meso', 4] }
@@ -99,6 +103,9 @@ const WaL2: DieFaceAnd = {
   op: '+',
 }
 
+const StartingDie: Die = [M1, M2, M3, M4, M5, M6]
+export const StartingDice: [Die, Die] = [StartingDie, StartingDie]
+
 export type CashShopItem = {
   face: DieFace
   bought?: boolean
@@ -108,7 +115,7 @@ export type CashShop = {
   itemsByPrice: { [price: number]: CashShopItem[] }
 }
 
-export interface GameState {
+export type GameState = {
   playerIds: PlayerId[]
   whoseTurn?: PlayerId
   playerOrder: { [id in PlayerId]: number }
@@ -126,6 +133,12 @@ type GameActions = {
 declare global {
   const Dusk: DuskClient<GameState, GameActions>
 }
+
+export type Phase = 'rollToDecideOrder' | 'gameplay'
+
+// const getGamePhase = (game: GameState): Phase => {
+
+// }
 
 const csItems = (...dieFaces: DieFace[]): CashShopItem[] => {
   return dieFaces.map(face => ({ face }))
@@ -145,8 +158,8 @@ Dusk.initLogic({
           [M1, M1, M1, M1, W1, P1],
           [M1, M1, M1, M1, M2, L1],
         ],
-        viewing: 'worldMap',
-        showDiceRoll: true,
+        viewing: null,
+        showDiceRoll: false,
         level: 1,
       }
       return acc

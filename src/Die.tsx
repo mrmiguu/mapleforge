@@ -23,12 +23,12 @@ type Face = keyof typeof dieRotationByFace
 
 type DieProps = {
   faces: [Logic.DieFace, Logic.DieFace, Logic.DieFace, Logic.DieFace, Logic.DieFace, Logic.DieFace]
-  onRollDone: () => void
+  onRollEnd: (facing: Logic.DieFace) => void
   debug?: boolean
 }
 
 const generateDie = () => {
-  function Die({ faces, onRollDone }: DieProps) {
+  function Die({ faces, onRollEnd }: DieProps) {
     const [face1, face2, face3, face4, face5, face6] = faces
     const dieSizePx = 150
     const textScale = 4.5
@@ -46,6 +46,8 @@ const generateDie = () => {
     const rotateZDeg = rotateZ * 90
 
     const rolled = rollStarted || rollDone
+
+    const dieFace = facing ? faces[Number(facing) - 1] : undefined
 
     const animationPlayState = rollDone ? 'paused' : 'running'
 
@@ -75,8 +77,11 @@ const generateDie = () => {
             transform: `rotateY(${rotateYDeg}deg) rotateX(${rotateXDeg}deg) rotateZ(${rotateZDeg}deg)`,
           }}
           onTransitionEnd={() => {
+            if (!dieFace) {
+              throw new Error('Die not rolled')
+            }
             setRollDone(true)
-            onRollDone()
+            onRollEnd(dieFace)
           }}
         >
           <div
