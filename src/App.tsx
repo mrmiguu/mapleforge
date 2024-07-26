@@ -1,11 +1,12 @@
 import { useContext, useEffect, useMemo, useState } from 'react'
 
+import { clickSound, kpqSound } from './audio.ts'
 import CashShop from './CashShop.tsx'
 import { useDiceRollModal } from './DiceRollModal.tsx'
 import { GameStateContext } from './GameState.context.tsx'
-import WorldMap from './WorldMap.tsx'
-import { clickSound } from './audio.ts'
 import * as Logic from './logic.ts'
+import { usePlayMusic } from './Music.hooks.ts'
+import WorldMap from './WorldMap.tsx'
 
 import dieIconImage from './assets/die-icon.png'
 import mapleForgeMascot1Image from './assets/maple-forge-mascot-1.png'
@@ -71,6 +72,7 @@ function InstructionsScreenRollToDecideWhoGoesFirst() {
 }
 
 function App() {
+  usePlayMusic(kpqSound)
   const { game, yourPlayerId } = useContext(GameStateContext)
   const { playerStateById, playerOrder, cashShop } = game
   const playerState = playerStateById[yourPlayerId]
