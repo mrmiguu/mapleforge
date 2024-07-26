@@ -50,9 +50,9 @@ function InstructionsScreenRollToDecideWhoGoesFirst() {
         }}
       >
         <div className="flex flex-col justify-center items-center">
-          <div className="text-amber-50 text-4xl font-bold text-center">
-            {!rolled && <>ROLL!</>}
-            {rolled && <>Rolled {rollSum}</>}
+          <div className="text-amber-50 text-6xl font-bold text-center font-damage uppercase">
+            {!rolled && <>Roll!</>}
+            {rolled && <>{rollSum}</>}
           </div>
           <div className="text-amber-50 text-xs text-center">
             {!rolled && <>Decide who goes first</>}

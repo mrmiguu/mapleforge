@@ -16,7 +16,7 @@ export function MusicContextProvider({ children }: PropsWithChildren) {
 
   useEffect(() => {
     playing?.loop(true)
-    playing?.play()
+    // playing?.play()
 
     return () => {
       playing?.stop()
