@@ -45,11 +45,11 @@ function InstructionsScreenRollToDecideWhoGoesFirst() {
 
   return (
     <div
-      className="absolute w-full h-full flex flex-col gap-4 justify-center items-center bg-cover bg-center"
+      className="absolute w-full h-full flex flex-col gap-4 justify-center items-center bg-cover bg-center p-3"
       style={{ backgroundImage: `url(${mapleForgeMascotImage})` }}
     >
       <button
-        className="w-2/3 h-1/2 p-4 bg-gradient-to-t from-amber-700 to-amber-600 rounded shadow-2xl outline outline-8 outline-amber-800 flex flex-col gap-4 justify-center items-center"
+        className="w-full h-full max-w-48 max-h-48 p-4 bg-gradient-to-t from-amber-700 to-amber-600 rounded shadow-2xl outline outline-8 outline-amber-800 flex flex-col gap-2 justify-center items-center"
         onClick={async () => {
           clickSound.play()
           setRolled(await MyDiceRollModal.waitForRoll())
@@ -65,6 +65,7 @@ function InstructionsScreenRollToDecideWhoGoesFirst() {
             {rolled && <>Waiting for other players</>}
           </div>
         </div>
+
         <img
           src={dieIconImage}
           className={`w-20 ${rolled ? 'animate-spin' : 'animate-bounce'}`}
