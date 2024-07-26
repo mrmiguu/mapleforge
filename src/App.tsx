@@ -43,7 +43,7 @@ function InstructionsScreenRollToDecideWhoGoesFirst() {
       style={{ backgroundImage: `url(${mapleForgeMascotImage})` }}
     >
       <button
-        className="w-2/3 h-1/3 p-4 bg-gradient-to-t from-amber-700 to-amber-600 rounded shadow-2xl outline outline-8 outline-amber-800 flex flex-col gap-4 justify-center items-center"
+        className="w-2/3 h-1/2 p-4 bg-gradient-to-t from-amber-700 to-amber-600 rounded shadow-2xl outline outline-8 outline-amber-800 flex flex-col gap-4 justify-center items-center"
         onClick={async () => {
           clickSound.play()
           setRolled(await MyDiceRollModal.waitForRoll())
