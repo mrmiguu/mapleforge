@@ -72,12 +72,14 @@ export type CashShop = {
 export type GameState = {
   playerStateById: { [id in PlayerId]: PlayerState }
   decidedRollSumByPlayerId: { [id in PlayerId]: number }
+  gameStartedAt?: number
   whoseTurn?: PlayerId
   cashShop: CashShop
 }
 
 type GameActions = {
   rollDie: ({ which }: { which: WhichDie }) => void
+  startGame: () => void
   switchView: ({ view }: { view: View }) => void
   showDiceRoll: ({ show }: { show: boolean }) => void
   buyCashShopItem: ({ price, priceIndex }: { price: number; priceIndex: number }) => void
@@ -89,6 +91,14 @@ declare global {
 
 const StartingDie: Die = [M1, M2, M3, M4, M5, M6]
 export const StartingDice: [Die, Die] = [StartingDie, StartingDie]
+
+export const gameTime = () => {
+  return Dusk.gameTime()
+}
+
+export const gameTimeSinceOfficialStart = (game: GameState) => {
+  return game.gameStartedAt ? gameTime() - game.gameStartedAt : 0
+}
 
 export const totalOnline = (game: GameState): number => {
   return Object.values(game.playerStateById).filter(p => !p.afk).length
@@ -194,6 +204,12 @@ Dusk.initLogic({
       rolledNums[which - 1] = faceNum
 
       checkToCalculateDecidedRollSum(game, playerId, rolledNums)
+    },
+
+    startGame(_, { game, playerId }) {
+      if (game.whoseTurn === playerId) {
+        game.gameStartedAt = gameTime()
+      }
     },
 
     switchView({ view }, { game, playerId }) {

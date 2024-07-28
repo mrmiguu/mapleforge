@@ -1,21 +1,20 @@
 import { useContext, useEffect, useMemo, useState } from 'react'
 
-import { clickSound, kpqSound } from './audio.ts'
+import { DIE_ROLL_DURATION_MS, WAIT_AFTER_FIRST_PLAYER_DECIDED } from './animations.consts.ts'
+import { clickSound } from './audio.ts'
 import CashShop from './CashShop.tsx'
 import { useDiceRollModal } from './DiceRollModal.tsx'
 import { GameStateContext } from './GameState.context.tsx'
+import { useElectState } from './hooks.ts'
 import * as Logic from './logic.ts'
-import { usePlayMusic } from './Music.hooks.ts'
+import { sleep } from './utils.ts'
+import WorldMap from './WorldMap.tsx'
 
-import { DIE_ROLL_DURATION_MS, WAIT_AFTER_FIRST_PLAYER_DECIDED } from './animations.consts.ts'
 import dieIconImage from './assets/die-icon.png'
 import mapleForgeMascot1Image from './assets/maple-forge-mascot-1.png'
 import mapleForgeMascot2Image from './assets/maple-forge-mascot-2.png'
 import mesoBagIconImage from './assets/meso-bag-icon.png'
 import worldMapIconImage from './assets/world-map-icon.png'
-import { useElectState } from './hooks.ts'
-import { sleep } from './utils.ts'
-import WorldMap from './WorldMap.tsx'
 
 function RollToDecideWhoGoesFirstScreen() {
   const mapleForgeMascotImage = useMemo(
@@ -89,7 +88,6 @@ function RollToDecideWhoGoesFirstScreen() {
 }
 
 function App() {
-  usePlayMusic(kpqSound)
   const { game, yourPlayerId } = useContext(GameStateContext)
   const { playerStateById, whoseTurn: whoseTurnElect, cashShop } = game
   const playerState = playerStateById[yourPlayerId]!
@@ -98,6 +96,13 @@ function App() {
 
   const MyDiceRollModal = useDiceRollModal(playerState.dice)
   // const [rolled, setRolled] = useState<[Logic.DieFace, Logic.DieFace]>()
+
+  useEffect(() => {
+    if (whoseTurnElect && whoseTurn === yourPlayerId) {
+      Logic.actions.startGame()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [whoseTurnElect, whoseTurn])
 
   if (!whoseTurn) {
     return <RollToDecideWhoGoesFirstScreen />
