@@ -1,4 +1,4 @@
-import { useContext, useMemo } from 'react'
+import { useContext, useEffect, useMemo, useState } from 'react'
 
 import { clickSound, kpqSound } from './audio.ts'
 import CashShop from './CashShop.tsx'
@@ -15,6 +15,7 @@ import mapleForgeMascot2Image from './assets/maple-forge-mascot-2.png'
 import mesoBagIconImage from './assets/meso-bag-icon.png'
 import worldMapIconImage from './assets/world-map-icon.png'
 import { useElectState } from './hooks.ts'
+import { sleep } from './utils.ts'
 
 function RollToDecideWhoGoesFirstScreen() {
   const mapleForgeMascotImage = useMemo(
@@ -26,7 +27,27 @@ function RollToDecideWhoGoesFirstScreen() {
 
   const MyDiceRollModal = useDiceRollModal(Logic.StartingDice)
 
-  const myDecidingRoll = useElectState(Logic.decidedRollSum(game, yourPlayerId), DIE_ROLL_DURATION_MS)
+  const myDecidingRollElect = Logic.decidedRollSum(game, yourPlayerId)
+  const myDecidingRoll = useElectState(myDecidingRollElect, DIE_ROLL_DURATION_MS)
+  const firstPlayerElect = Logic.findFirstPlayer(game)
+  const firstPlayer = useElectState(firstPlayerElect, DIE_ROLL_DURATION_MS)
+
+  const [countdown, setCountdown] = useState<number>()
+  useEffect(() => {
+    if (!firstPlayer) {
+      return
+    }
+
+    const go = async () => {
+      for (let i = Math.floor(WAIT_AFTER_FIRST_PLAYER_DECIDED / 1000); i >= 1; i--) {
+        setCountdown(i)
+        await sleep(1000)
+      }
+    }
+    go()
+  }, [firstPlayer])
+
+  useEffect(() => {}, [countdown])
 
   return (
     <div
@@ -43,11 +64,13 @@ function RollToDecideWhoGoesFirstScreen() {
         <div className="flex flex-col justify-center items-center">
           <div className="text-amber-50 text-6xl font-bold text-center font-damage uppercase">
             {!myDecidingRoll && <>Roll!</>}
-            {myDecidingRoll && <>{myDecidingRoll}</>}
+            {myDecidingRoll && !firstPlayer && <>{myDecidingRoll}</>}
+            {countdown && <>{countdown}</>}
           </div>
           <div className="text-amber-50 text-xs text-center">
             {!myDecidingRoll && <>Decide who goes first</>}
-            {myDecidingRoll && <>Waiting for other players</>}
+            {myDecidingRoll && !firstPlayer && <>Waiting for other players</>}
+            {countdown && <>Starting game in...</>}
           </div>
         </div>
 
