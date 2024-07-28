@@ -99,9 +99,9 @@ function App() {
   const MyDiceRollModal = useDiceRollModal(playerState.dice)
   // const [rolled, setRolled] = useState<[Logic.DieFace, Logic.DieFace]>()
 
-  // if (!whoseTurn) {
-  //   return <RollToDecideWhoGoesFirstScreen />
-  // }
+  if (!whoseTurn) {
+    return <RollToDecideWhoGoesFirstScreen />
+  }
 
   return (
     <div className="absolute w-full h-full flex flex-col justify-center items-center">
