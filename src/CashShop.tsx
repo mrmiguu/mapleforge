@@ -102,7 +102,7 @@ function CashShopItemCard({ priceIndex, item: { face, bought }, price }: CashSho
 
               await ConfirmBuyModal.waitForConfirmation(face)
 
-              Dusk.actions.buyCashShopItem({ price, priceIndex })
+              Logic.actions.buyCashShopItem({ price, priceIndex })
             }}
           >
             Buy
@@ -124,8 +124,8 @@ export default function CashShop({ cashShop: { itemsByPrice } }: { cashShop: Log
         {Object.entries(itemsByPrice).map(([price, items]) =>
           [...Array(Math.ceil(items.length / 2))].map((_, r) => (
             <div key={r} className="relative w-full flex">
-              <CashShopItemCard priceIndex={r * 2 + 0} item={items[r * 2 + 0]} price={parseInt(price)} />
-              <CashShopItemCard priceIndex={r * 2 + 1} item={items[r * 2 + 1]} price={parseInt(price)} />
+              <CashShopItemCard priceIndex={r * 2 + 0} item={items[r * 2 + 0]!} price={parseInt(price)} />
+              <CashShopItemCard priceIndex={r * 2 + 1} item={items[r * 2 + 1]!} price={parseInt(price)} />
             </div>
           )),
         )}

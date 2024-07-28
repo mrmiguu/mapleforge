@@ -16,7 +16,9 @@ export function GameStateContextProvider({ children }: PropsWithChildren) {
   useEffect(() => {
     Dusk.initClient({
       onChange: ({ game, yourPlayerId }) => {
-        setGame(game)
+        // We use elect values, so we rely on time delays for those to eventually become seen.
+        setGame({ ...game })
+
         setYourPlayerId(yourPlayerId)
       },
     })

@@ -1,5 +1,6 @@
 import { useContext, useMemo, useState } from 'react'
 
+import { DIE_ROLL_DURATION_MS } from './animations.consts.ts'
 import { diceRollSound, dieRollSound } from './audio.ts'
 import DieFace from './DieFace.tsx'
 import { GameStateContext } from './GameState.context.tsx'
@@ -42,7 +43,6 @@ const generateDie = () => {
 
     const [rollStarted, setRollStarted] = useState(false)
     const [rollDone, setRollDone] = useState(false)
-    // const [rolledNum, setFacing] = useState<Face>()
     const [minRotateX, minRotateY, minRotateZ] = rolledNum ? dieRotationByFaceNum[rolledNum] : [0, 0, 0]
     const rotateX = useMemo(() => minRotateX + randomSymmetryWithTilt(!rolledNum), [minRotateX, rolledNum])
     const rotateY = useMemo(() => minRotateY + randomSymmetryWithTilt(!rolledNum), [minRotateY, rolledNum])
@@ -65,8 +65,7 @@ const generateDie = () => {
           dieRollSound.play()
         }
         setRollStarted(true)
-        Dusk.actions.rollDie({ which })
-        // setFacing(((Math.floor(Math.random() * 6) % 6) + 1) as Face)
+        Logic.actions.rollDie({ which })
       }
       for (const die of otherDice) {
         die.roll()
@@ -82,7 +81,7 @@ const generateDie = () => {
             height: `${dieSizePx}px`,
             transformStyle: 'preserve-3d',
             transform: `rotateY(${rotateYDeg}deg) rotateX(${rotateXDeg}deg) rotateZ(${rotateZDeg}deg)`,
-            transitionDuration: `${Logic.DIE_ROLL_DURATION_MS}ms`,
+            transitionDuration: `${DIE_ROLL_DURATION_MS}ms`,
           }}
           onTransitionEnd={() => {
             if (!dieFace) {

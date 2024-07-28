@@ -1,4 +1,4 @@
-import { useContext, useMemo, useState } from 'react'
+import { useContext, useMemo } from 'react'
 
 import { clickSound, kpqSound } from './audio.ts'
 import CashShop from './CashShop.tsx'
@@ -8,22 +8,25 @@ import * as Logic from './logic.ts'
 import { usePlayMusic } from './Music.hooks.ts'
 import WorldMap from './WorldMap.tsx'
 
+import { DIE_ROLL_DURATION_MS, WAIT_AFTER_FIRST_PLAYER_DECIDED } from './animations.consts.ts'
 import dieIconImage from './assets/die-icon.png'
 import mapleForgeMascot1Image from './assets/maple-forge-mascot-1.png'
 import mapleForgeMascot2Image from './assets/maple-forge-mascot-2.png'
 import mesoBagIconImage from './assets/meso-bag-icon.png'
 import worldMapIconImage from './assets/world-map-icon.png'
+import { useElectState } from './hooks.ts'
 
-function InstructionsScreenRollToDecideWhoGoesFirst() {
+function RollToDecideWhoGoesFirstScreen() {
   const mapleForgeMascotImage = useMemo(
     () => (Math.random() < 0.5 ? mapleForgeMascot1Image : mapleForgeMascot2Image),
     [],
   )
   const { game, yourPlayerId } = useContext(GameStateContext)
-  const myDecidingRoll = game.playerOrder[yourPlayerId]
+  const totalOnline = Logic.totalOnline(game)
+
   const MyDiceRollModal = useDiceRollModal(Logic.StartingDice)
 
-  const totalOnline = Logic.totalOnline(game)
+  const myDecidingRoll = useElectState(Logic.decidedRollSum(game, yourPlayerId), DIE_ROLL_DURATION_MS)
 
   return (
     <div
@@ -69,28 +72,16 @@ function InstructionsScreenRollToDecideWhoGoesFirst() {
 function App() {
   usePlayMusic(kpqSound)
   const { game, yourPlayerId } = useContext(GameStateContext)
-  const { playerStateById, playerOrder, cashShop } = game
+  const { playerStateById, whoseTurn: whoseTurnElect, cashShop } = game
   const playerState = playerStateById[yourPlayerId]!
 
+  const whoseTurn = useElectState(whoseTurnElect, DIE_ROLL_DURATION_MS + WAIT_AFTER_FIRST_PLAYER_DECIDED)
+
   const MyDiceRollModal = useDiceRollModal(playerState.dice)
-  const [rolled, setRolled] = useState<[Logic.DieFace, Logic.DieFace]>()
+  // const [rolled, setRolled] = useState<[Logic.DieFace, Logic.DieFace]>()
 
-  // useEffect(() => {
-  //   if (!playerState.showDiceRoll) {
-  //     return
-  //   }
-
-  //   const roll = async () => {
-  //     setRolled(await MyDiceRollModal.waitForRoll())
-  //   }
-  //   roll()
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [playerState.showDiceRoll])
-
-  const showInstructionsScreenRollToDecideWhoGoesFirst = !Logic.currentPlayerTurn(game)
-
-  if (showInstructionsScreenRollToDecideWhoGoesFirst) {
-    return <InstructionsScreenRollToDecideWhoGoesFirst />
+  if (!whoseTurn) {
+    return <RollToDecideWhoGoesFirstScreen />
   }
 
   return (
@@ -126,7 +117,7 @@ function App() {
                     className="pointer-events-auto px-4 rounded bg-gradient-to-r from-red-500 to-red-700 border outline outline-1 outline-red-700"
                     onClick={() => {
                       clickSound.play()
-                      Dusk.actions.switchView({ view: 'cashShop' })
+                      Logic.actions.switchView({ view: 'cashShop' })
                     }}
                   >
                     <img src={mesoBagIconImage} className="w-10" style={{ imageRendering: 'auto' }} />
@@ -138,14 +129,14 @@ function App() {
                     className="pointer-events-auto px-4 rounded bg-gradient-to-r from-blue-500 to-blue-700 border outline outline-1 outline-blue-700"
                     onClick={() => {
                       clickSound.play()
-                      Dusk.actions.switchView({ view: 'worldMap' })
+                      Logic.actions.switchView({ view: 'worldMap' })
                     }}
                   >
                     <img src={worldMapIconImage} className="w-10" style={{ imageRendering: 'auto' }} />
                   </button>
                 )}
 
-                <button
+                {/* <button
                   className="pointer-events-auto px-4 rounded bg-gradient-to-r from-green-500 to-green-700 border outline outline-1 outline-green-700"
                   onClick={async () => {
                     clickSound.play()
@@ -157,7 +148,7 @@ function App() {
                     className={`w-10 ${!rolled && 'animate-bounce'}`}
                     style={{ imageRendering: 'auto' }}
                   />
-                </button>
+                </button> */}
               </div>
             </div>
           </div>
