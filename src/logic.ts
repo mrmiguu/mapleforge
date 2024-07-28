@@ -38,6 +38,7 @@ export type PlayerState = {
   dice: [Die, Die]
   rolledNums: [DieFaceNum | undefined, DieFaceNum | undefined]
   level: number
+  afk?: boolean
 }
 
 export type GainType = 'meso' | 'power' | 'wisdom' | 'level'
@@ -90,14 +91,14 @@ const StartingDie: Die = [M1, M2, M3, M4, M5, M6]
 export const StartingDice: [Die, Die] = [StartingDie, StartingDie]
 
 export const totalOnline = (game: GameState): number => {
-  return Object.keys(game.playerStateById).length
+  return Object.values(game.playerStateById).filter(p => !p.afk).length
 }
 
 export const findFirstPlayer = (game: GameState) => {
-  const playersOnline = new Set(Object.keys(game.playerStateById))
+  const playersRegistered = new Set(Object.keys(game.playerStateById))
   const playersWhoRolled = new Set(Object.keys(game.decidedRollSumByPlayerId))
 
-  if (playersOnline.difference(playersWhoRolled).size > 0) {
+  if (playersRegistered.difference(playersWhoRolled).size > 0) {
     return
   }
 
@@ -135,6 +136,13 @@ const getDefaultPlayerState = (id: PlayerId): PlayerState => {
   }
 }
 
+const checkDecidedFirstPlayer = (game: GameState) => {
+  const firstPlayer = findFirstPlayer(game)
+  if (firstPlayer && !game.whoseTurn) {
+    game.whoseTurn = firstPlayer
+  }
+}
+
 const checkToCalculateDecidedRollSum = (
   game: GameState,
   playerId: PlayerId,
@@ -146,10 +154,7 @@ const checkToCalculateDecidedRollSum = (
   if (rolled1 && rolled2 && !(playerId in game.decidedRollSumByPlayerId)) {
     game.decidedRollSumByPlayerId[playerId] = rolled1 + rolled2
 
-    const firstPlayer = findFirstPlayer(game)
-    if (firstPlayer) {
-      game.whoseTurn = firstPlayer
-    }
+    checkDecidedFirstPlayer(game)
   }
 }
 
@@ -205,8 +210,16 @@ Dusk.initLogic({
   },
 
   events: {
-    playerJoined(playerId, eventContext) {
-      eventContext.game.playerStateById[playerId] = getDefaultPlayerState(playerId)
+    playerJoined(playerId, { game }) {
+      if (playerId in game.playerStateById) {
+        game.playerStateById[playerId]!.afk = false
+      } else {
+        game.playerStateById[playerId] = getDefaultPlayerState(playerId)
+      }
+    },
+    playerLeft(playerId, { game }) {
+      game.playerStateById[playerId]!.afk = true
+      checkDecidedFirstPlayer(game)
     },
   },
 })
