@@ -129,12 +129,6 @@ export default function CashShop({ cashShop: { itemsByPrice } }: { cashShop: Log
             </div>
           )),
         )}
-
-        <div
-        // Padding at bottom
-        >
-          <div className="h-16" />
-        </div>
       </div>
 
       <ConfirmBuyModal />

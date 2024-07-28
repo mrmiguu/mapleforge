@@ -6,7 +6,6 @@ import { useDiceRollModal } from './DiceRollModal.tsx'
 import { GameStateContext } from './GameState.context.tsx'
 import * as Logic from './logic.ts'
 import { usePlayMusic } from './Music.hooks.ts'
-import WorldMap from './WorldMap.tsx'
 
 import { DIE_ROLL_DURATION_MS, WAIT_AFTER_FIRST_PLAYER_DECIDED } from './animations.consts.ts'
 import dieIconImage from './assets/die-icon.png'
@@ -16,6 +15,7 @@ import mesoBagIconImage from './assets/meso-bag-icon.png'
 import worldMapIconImage from './assets/world-map-icon.png'
 import { useElectState } from './hooks.ts'
 import { sleep } from './utils.ts'
+import WorldMap from './WorldMap.tsx'
 
 function RollToDecideWhoGoesFirstScreen() {
   const mapleForgeMascotImage = useMemo(
@@ -74,11 +74,7 @@ function RollToDecideWhoGoesFirstScreen() {
           </div>
         </div>
 
-        <img
-          src={dieIconImage}
-          className={`w-20 ${myDecidingRoll ? 'animate-spin' : 'animate-bounce'}`}
-          style={{ imageRendering: 'auto' }}
-        />
+        <img src={dieIconImage} className={`w-20 ${myDecidingRoll ? 'animate-spin' : 'animate-bounce'}`} />
       </button>
 
       <div className="absolute w-full h-full left-0 top-0 flex justify-end items-end p-4 pointer-events-none">
@@ -103,83 +99,84 @@ function App() {
   const MyDiceRollModal = useDiceRollModal(playerState.dice)
   // const [rolled, setRolled] = useState<[Logic.DieFace, Logic.DieFace]>()
 
-  if (!whoseTurn) {
-    return <RollToDecideWhoGoesFirstScreen />
-  }
+  // if (!whoseTurn) {
+  //   return <RollToDecideWhoGoesFirstScreen />
+  // }
 
   return (
-    <>
-      {playerState.viewing === 'worldMap' && <WorldMap />}
-      {playerState.viewing === 'cashShop' && <CashShop cashShop={cashShop} />}
+    <div className="absolute w-full h-full flex flex-col justify-center items-center">
+      <div
+        // View portal
+        className="relative grow w-full h-full overflow-auto bg-black"
+      >
+        {playerState.viewing === 'worldMap' && <WorldMap />}
+        {playerState.viewing === 'cashShop' && <CashShop cashShop={cashShop} />}
+      </div>
 
-      {playerState.viewing && (
-        <div className="pointer-events-none fixed w-full h-full z-40">
-          <div className="absolute w-full h-full">
-            <div className="absolute w-full h-16 bottom-0">
-              <div className="absolute w-full h-full bg-gradient-to-b from-slate-200 via-slate-400 to-slate-400 border-t border-slate-50 outline outline-1 outline-slate-500" />
+      <div
+        // UI bottom bar
+        className="relative w-full h-14"
+      >
+        <div className="absolute w-full h-full bg-gradient-to-b from-slate-200 via-slate-400 to-slate-400 border-t border-slate-50 outline outline-1 outline-slate-500" />
 
-              <div className="absolute w-full h-full p-1 flex gap-1">
-                <div className="grow flex p-1 justify-start items-center rounded bg-gradient-to-b from-gray-500 via-gray-700 to-gray-700">
-                  <div className="h-full px-3 flex justify-start items-center rounded bg-gradient-to-br from-gray-700 via-black to-black">
-                    <div className="text-white text-3xl font-bold">LV.</div>
-                    <div className="p-2 rounded flex justify-start items-center gap-0.5">
-                      {playerState.level
-                        .toString()
-                        .split('')
-                        .map((char, i) => (
-                          <div key={i} className="font-mono font-bold text-white px-1 bg-orange-500 rounded">
-                            {char}
-                          </div>
-                        ))}
+        <div className="absolute w-full h-full p-1 flex gap-1">
+          <div className="grow flex p-1 justify-start items-center rounded bg-gradient-to-b from-gray-500 via-gray-700 to-gray-700">
+            <div className="h-full px-3 flex justify-start items-center rounded bg-gradient-to-br from-gray-700 via-black to-black">
+              <div className="text-white text-3xl font-bold">LV.</div>
+              <div className="p-2 rounded flex justify-start items-center gap-0.5">
+                {playerState.level
+                  .toString()
+                  .split('')
+                  .map((char, i) => (
+                    <div key={i} className="font-mono font-bold text-white px-1 bg-orange-500 rounded">
+                      {char}
                     </div>
-                  </div>
-                </div>
-
-                {playerState.viewing === 'worldMap' && (
-                  <button
-                    className="pointer-events-auto px-4 rounded bg-gradient-to-r from-red-500 to-red-700 border outline outline-1 outline-red-700"
-                    onClick={() => {
-                      clickSound.play()
-                      Logic.actions.switchView({ view: 'cashShop' })
-                    }}
-                  >
-                    <img src={mesoBagIconImage} className="w-10" style={{ imageRendering: 'auto' }} />
-                  </button>
-                )}
-
-                {playerState.viewing === 'cashShop' && (
-                  <button
-                    className="pointer-events-auto px-4 rounded bg-gradient-to-r from-blue-500 to-blue-700 border outline outline-1 outline-blue-700"
-                    onClick={() => {
-                      clickSound.play()
-                      Logic.actions.switchView({ view: 'worldMap' })
-                    }}
-                  >
-                    <img src={worldMapIconImage} className="w-10" style={{ imageRendering: 'auto' }} />
-                  </button>
-                )}
-
-                {/* <button
-                  className="pointer-events-auto px-4 rounded bg-gradient-to-r from-green-500 to-green-700 border outline outline-1 outline-green-700"
-                  onClick={async () => {
-                    clickSound.play()
-                    await MyDiceRollModal.waitForRoll()
-                  }}
-                >
-                  <img
-                    src={dieIconImage}
-                    className={`w-10 ${!rolled && 'animate-bounce'}`}
-                    style={{ imageRendering: 'auto' }}
-                  />
-                </button> */}
+                  ))}
               </div>
             </div>
           </div>
+
+          {playerState.viewing === 'worldMap' && (
+            <button
+              className="pointer-events-auto px-4 rounded bg-gradient-to-r from-red-500 to-red-700 border outline outline-1 outline-red-700"
+              onClick={() => {
+                clickSound.play()
+                Logic.actions.switchView({ view: 'cashShop' })
+              }}
+            >
+              <img src={mesoBagIconImage} className="w-8" />
+            </button>
+          )}
+
+          {playerState.viewing === 'cashShop' && (
+            <button
+              className="pointer-events-auto px-4 rounded bg-gradient-to-r from-blue-500 to-blue-700 border outline outline-1 outline-blue-700"
+              onClick={() => {
+                clickSound.play()
+                Logic.actions.switchView({ view: 'worldMap' })
+              }}
+            >
+              <img src={worldMapIconImage} className="w-8" />
+            </button>
+          )}
+
+          {/* <button
+                className="pointer-events-auto px-4 rounded bg-gradient-to-r from-green-500 to-green-700 border outline outline-1 outline-green-700"
+                onClick={async () => {
+                  clickSound.play()
+                  await MyDiceRollModal.waitForRoll()
+                }}
+              >
+                <img
+                  src={dieIconImage}
+                  className={`w-10 ${!rolled && 'animate-bounce'}`}
+                />
+              </button> */}
         </div>
-      )}
+      </div>
 
       <MyDiceRollModal />
-    </>
+    </div>
   )
 }
 

@@ -25,7 +25,7 @@ export default function Currency({ type, amount, textScale }: CurrencyProps) {
 
   return (
     <div className="relative aspect-square">
-      <img src={src} className="relative w-full h-full" />
+      <img src={src} className="relative w-full h-full" style={{ imageRendering: 'pixelated' }} />
 
       <div className="absolute z-10 left-0 top-0 w-full h-full flex justify-center items-center">
         <div
