@@ -90,7 +90,7 @@ function CashShopItemCard({ priceIndex, item: { face, bought }, price }: CashSho
       </div>
 
       <div className="w-full flex flex-col gap-2">
-        <div className="w-full h-full">
+        <div className="w-full h-full flex justify-center">
           <Currency type="meso" amount={price} textScale={1.8} />
         </div>
 
@@ -118,16 +118,17 @@ export default function CashShop({ cashShop: { itemsByPrice } }: { cashShop: Log
 
   return (
     <div className="absolute w-full h-full flex justify-center">
-      <div className="fixed left-0 top-0 w-full h-full bg-[#3064AC]" />
+      <div className="fixed z-0 left-0 top-0 w-full h-full bg-blue-500" />
 
-      <div className="w-[393px] h-full flex flex-col">
+      <div className="z-10 w-[393px] h-full flex flex-col gap-8">
         {Object.entries(itemsByPrice).map(([price, items]) =>
-          [...Array(Math.ceil(items.length / 2))].map((_, r) => (
-            <div key={r} className="relative w-full flex">
-              <CashShopItemCard priceIndex={r * 2 + 0} item={items[r * 2 + 0]!} price={parseInt(price)} />
-              <CashShopItemCard priceIndex={r * 2 + 1} item={items[r * 2 + 1]!} price={parseInt(price)} />
-            </div>
-          )),
+          <div className="rounded-3xl py-8 bg-gradient-to-tr from-blue-600 to-blue-400">
+            {items.map((item, i) => (
+              <div key={i} className="relative w-full flex">
+                <CashShopItemCard priceIndex={i} item={item} price={parseInt(price)} />
+              </div>
+            ))}
+          </div>
         )}
       </div>
 
