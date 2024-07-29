@@ -15,6 +15,7 @@ import mapleForgeMascot1Image from './assets/maple-forge-mascot-1.png'
 import mapleForgeMascot2Image from './assets/maple-forge-mascot-2.png'
 import mesoBagIconImage from './assets/meso-bag-icon.png'
 import worldMapIconImage from './assets/world-map-icon.png'
+import Currency from './Currency.tsx'
 
 function RollToDecideWhoGoesFirstScreen() {
   const mapleForgeMascotImage = useMemo(
@@ -125,18 +126,48 @@ function App() {
         <div className="absolute w-full h-full bg-gradient-to-b from-slate-200 via-slate-400 to-slate-400 border-t border-slate-50 outline outline-1 outline-slate-500" />
 
         <div className="absolute w-full h-full p-1 flex gap-1">
-          <div className="grow flex p-1 justify-start items-center rounded bg-gradient-to-b from-gray-500 via-gray-700 to-gray-700">
-            <div className="h-full px-3 flex justify-start items-center rounded bg-gradient-to-br from-gray-700 via-black to-black">
-              <div className="text-white text-3xl font-bold">LV.</div>
-              <div className="p-2 rounded flex justify-start items-center gap-0.5">
+          <div className="grow flex p-1 justify-start items-center gap-1 rounded bg-gradient-to-b from-gray-500 via-gray-700 to-gray-700">
+            <div
+              // Level
+              className="h-full px-1 flex justify-start items-center gap-1 rounded bg-gradient-to-br from-gray-700 via-black to-black"
+            >
+              <div className="text-white text-xs font-bold">LV.</div>
+              <div className="p-0 rounded flex justify-start items-center gap-0.5">
                 {playerState.level
                   .toString()
                   .split('')
                   .map((char, i) => (
-                    <div key={i} className="font-mono font-bold text-white px-1 bg-orange-500 rounded">
+                    <div key={i} className="font-mono font-bold text-white px-0.5 bg-orange-500 rounded">
                       {char}
                     </div>
                   ))}
+              </div>
+            </div>
+
+            <div
+              // Mesos
+              className="h-full p-1 flex justify-start items-center gap-1 rounded bg-gradient-to-br from-gray-700 via-black to-black"
+            >
+              <div className="w-full h-full flex justify-center">
+                <Currency type="meso" amount={playerState.mesos} textScale={1} />
+              </div>
+            </div>
+
+            <div
+              // Power crystals
+              className="h-full p-1 flex justify-start items-center gap-1 rounded bg-gradient-to-br from-gray-700 via-black to-black"
+            >
+              <div className="w-full h-full flex justify-center">
+                <Currency type="power" amount={playerState.powerCrystals} textScale={1} />
+              </div>
+            </div>
+
+            <div
+              // Wisdom crystals
+              className="h-full p-1 flex justify-start items-center gap-1 rounded bg-gradient-to-br from-gray-700 via-black to-black"
+            >
+              <div className="w-full h-full flex justify-center">
+                <Currency type="wisdom" amount={playerState.wisdomCrystals} textScale={1} />
               </div>
             </div>
           </div>

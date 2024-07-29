@@ -27,14 +27,15 @@ export default function Currency({ type, amount, textScale }: CurrencyProps) {
     <div className="relative aspect-square">
       <img src={src} className="relative w-full h-full" style={{ imageRendering: 'pixelated' }} />
 
-      <div className="absolute z-10 left-0 top-0 w-full h-full flex justify-center items-center">
+      <div className="absolute z-10 left-0 top-0 w-full h-full flex justify-start items-end">
         <div
+          className='origin-bottom-left'
           style={{
             transform: `scale(${textScale / 2})`,
           }}
         >
           <div
-            className="relative text-5xl text-white font-damage"
+            className="relative text-4xl text-white font-damage leading-[0.6em]"
             style={{
               textShadow: '-1px -1px 1px #000, 1px -1px 1px #000, -1px 1px 1px #000, 1px 1px 1px #000',
             }}

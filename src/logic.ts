@@ -31,16 +31,6 @@ export type Die = [DieFace, DieFace, DieFace, DieFace, DieFace, DieFace]
 export type DieFaceNum = 1 | 2 | 3 | 4 | 5 | 6
 export type WhichDie = 1 | 2
 
-export type PlayerState = {
-  id: PlayerId
-  viewing: View | null
-  showDiceRoll: boolean
-  dice: [Die, Die]
-  rolledNums: [DieFaceNum | undefined, DieFaceNum | undefined]
-  level: number
-  afk?: boolean
-}
-
 export type GainType = 'meso' | 'power' | 'wisdom' | 'level'
 
 export type DieFaceGainOrOp = '?'
@@ -67,6 +57,20 @@ export type CashShopItem = {
 
 export type CashShop = {
   itemsByPrice: { [price: number]: CashShopItem[] }
+}
+
+export type PlayerState = {
+  id: PlayerId
+  afk?: boolean
+  viewing: View | null
+  showDiceRoll: boolean
+  dice: [Die, Die]
+  rolledNums: [DieFaceNum | undefined, DieFaceNum | undefined]
+  mesos: number
+  powerCrystals: number
+  wisdomCrystals: number
+  level: number
+  slotExpansions: number
 }
 
 export type GameState = {
@@ -104,6 +108,11 @@ export const totalOnline = (game: GameState): number => {
   return Object.values(game.playerStateById).filter(p => !p.afk).length
 }
 
+export const playerOrder = (game: GameState): PlayerId[] => {
+  const order = Object.entries(game.decidedRollSumByPlayerId).sort(([, a], [, b]) => b - a).map(([id]) => id)
+  return order
+}
+
 export const findFirstPlayer = (game: GameState) => {
   const playersRegistered = new Set(Object.keys(game.playerStateById))
   const playersWhoRolled = new Set(Object.keys(game.decidedRollSumByPlayerId))
@@ -112,7 +121,7 @@ export const findFirstPlayer = (game: GameState) => {
     return
   }
 
-  const firstPlayer = Object.entries(game.decidedRollSumByPlayerId).sort(([, a], [, b]) => b - a)[0]?.[0]
+  const firstPlayer = playerOrder(game)[0]
   return firstPlayer
 }
 
@@ -142,7 +151,11 @@ const getDefaultPlayerState = (id: PlayerId): PlayerState => {
     rolledNums: [undefined, undefined],
     viewing: 'worldMap',
     showDiceRoll: false,
+    mesos: 0,
+    powerCrystals: 0,
+    wisdomCrystals: 0,
     level: 1,
+    slotExpansions: 0,
   }
 }
 
@@ -209,6 +222,11 @@ Dusk.initLogic({
     startGame(_, { game, playerId }) {
       if (game.whoseTurn === playerId) {
         game.gameStartedAt = gameTime()
+
+        const order = playerOrder(game)
+        for (let i = 0; i < order.length; i++) {
+          game.playerStateById[order[i]!]!.mesos = order.length - 1 - i
+        }
       }
     },
 
